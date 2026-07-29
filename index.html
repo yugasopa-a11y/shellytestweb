@@ -1,962 +1,794 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>The Shelly Test</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Space+Grotesk:wght@700&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #F4EFE6;
-  --ink: #1A1A1A;
-  --correct: #3A7D63;
-  --wrong: #C1443D;
-  --glow: #E8B84B;
-  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-sincere: cubic-bezier(0.25, 0.1, 0.25, 1);
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body: 'Inter', sans-serif;
-}
-*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-html, body { width:100%; height:100%; overflow:hidden; background:var(--bg); color:var(--ink); font-family:var(--font-body); -webkit-font-smoothing:antialiased; }
-body { position:relative; }
-img, svg { display:block; }
-button { font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; -webkit-tap-highlight-color:transparent; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>The Shelly Test — Birthday Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-#app { position:relative; width:100%; height:100dvh; height:100vh; overflow:hidden; }
+    :root {
+      --bg: #F4EFE6;
+      --ink: #1A1A1A;
+      --correct: #3A7D63;
+      --wrong: #C1443D;
+      --glow: #E8B84B;
+      --radius: 16px;
+      --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --ease-sincere: cubic-bezier(0.25, 0.1, 0.25, 1);
+    }
 
-/* ── PROGRESS DOTS ── */
-#dots { position:fixed; top:clamp(8px,2vw,16px); left:50%; transform:translateX(-50%); z-index:100; display:flex; gap:clamp(6px,1.2vw,12px); }
-.dot { width:clamp(10px,2vw,14px); height:clamp(10px,2vw,14px); border-radius:50%; background:rgba(26,26,26,0.15); transition:background 0.3s, transform 0.3s var(--ease-bounce); }
-.dot.active { background:var(--ink); transform:scale(1.2); }
-.dot.done { background:var(--correct); }
-.dot.wrong-dot { background:var(--wrong); }
+    html, body {
+      height: 100dvh;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Inter', sans-serif;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-/* ── SCREENS ── */
-.screen { position:absolute; inset:0; display:none; flex-direction:column; align-items:center; justify-content:center; }
-.screen.active { display:flex; }
-.overlay { z-index:50; }
+    body { position: relative; }
 
-/* ── TITLE SCREEN ── */
-#title-screen { gap:clamp(12px,3vw,24px); padding:clamp(16px,5vw,40px); text-align:center; }
-#title-screen h1 { font-family:var(--font-display); font-weight:700; font-size:clamp(2.2rem,8vw,4.5rem); letter-spacing:-0.02em; line-height:1.05; }
-#title-screen .sub { font-size:clamp(0.85rem,2.5vw,1.1rem); opacity:0.6; max-width:340px; line-height:1.5; }
-#title-screen .badge { font-family:var(--font-display); font-size:clamp(0.7rem,2vw,0.85rem); background:var(--glow); color:var(--ink); padding:6px 16px; border-radius:100px; font-weight:700; letter-spacing:0.04em; }
-.start-btn { font-family:var(--font-display); font-weight:700; font-size:clamp(1rem,3vw,1.3rem); background:var(--ink); color:var(--bg); padding:clamp(14px,3vw,20px) clamp(32px,8vw,56px); border-radius:100px; transition:transform 0.2s var(--ease-bounce), box-shadow 0.2s; min-height:48px; }
-.start-btn:hover { transform:scale(1.04); box-shadow:0 4px 20px rgba(0,0,0,0.15); }
-.start-btn:active { transform:scale(0.97); }
+    .screen {
+      position: absolute;
+      inset: 0;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(20px, 5vw, 48px);
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.4s var(--ease-bounce);
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+    .screen.active {
+      display: flex;
+      opacity: 1;
+      animation: screenIn 0.5s var(--ease-bounce) forwards;
+    }
 
-/* ── ROUND SCREENS ── */
-.round { position:absolute; inset:0; }
-.round-bg { position:absolute; inset:0; }
-.round-bg svg { width:100%; height:100%; object-fit:cover; }
-.prompt { position:absolute; top:clamp(50px,10vw,80px); left:50%; transform:translateX(-50%); z-index:10; font-family:var(--font-display); font-weight:700; font-size:clamp(0.95rem,2.8vw,1.25rem); background:rgba(244,239,230,0.92); backdrop-filter:blur(6px); padding:clamp(10px,2vw,16px) clamp(16px,3vw,28px); border-radius:14px; max-width:clamp(280px,70vw,520px); text-align:center; line-height:1.4; box-shadow:0 2px 12px rgba(0,0,0,0.08); }
+    @keyframes screenIn {
+      from { opacity: 0; transform: translateY(16px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
 
-/* ── CHOICES ── */
-.choices { position:absolute; bottom:clamp(16px,4vw,32px); left:0; right:0; z-index:10; display:flex; flex-direction:column; gap:clamp(10px,2vw,16px); padding:0 clamp(16px,4vw,24px); }
-.choice-btn { font-family:var(--font-body); font-weight:400; font-size:clamp(0.85rem,2.4vw,1rem); line-height:1.45; background:rgba(244,239,230,0.94); backdrop-filter:blur(6px); border:2px solid transparent; border-radius:14px; padding:clamp(14px,3vw,20px) clamp(16px,3vw,24px); min-height:48px; text-align:left; transition:transform 0.2s var(--ease-bounce), border-color 0.2s, background 0.2s, box-shadow 0.2s; box-shadow:0 2px 10px rgba(0,0,0,0.06); position:relative; overflow:hidden; }
-.choice-btn:hover { transform:scale(1.02); border-color:var(--glow); box-shadow:0 4px 16px rgba(232,184,75,0.2); }
-.choice-btn:active { transform:scale(0.98); }
-.choice-btn.chosen-correct { border-color:var(--correct); background:rgba(58,125,99,0.12); }
-.choice-btn.chosen-wrong { border-color:var(--wrong); background:rgba(193,68,61,0.12); }
-.choice-btn.dim { opacity:0.35; pointer-events:none; transform:scale(0.96); }
-.choice-label { display:inline-block; width:clamp(20px,4vw,24px); height:clamp(20px,4vw,24px); border-radius:50%; font-family:var(--font-display); font-weight:700; font-size:clamp(0.7rem,2vw,0.85rem); line-height:clamp(20px,4vw,24px); text-align:center; margin-right:10px; flex-shrink:0; background:rgba(26,26,26,0.08); }
+    @keyframes screenShake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+    .shake { animation: screenShake 0.5s ease-in-out; }
 
-/* ── ROUND 4 SEATBELT ── */
-#round-4 .seatbelt-line { transition: opacity 0.2s 0.1s, d 0.25s var(--ease-bounce) 0.1s; opacity:0; }
-#round-4.seatbelt-active .seatbelt-line { opacity:1; }
-#round-4 .passenger-group { transition: transform 0.15s var(--ease-bounce); }
-#round-4.recoil .passenger-group { transform:translate(-8px,-4px) rotate(-3deg); }
-#round-4.tremor .passenger-group { animation:tremor 0.08s infinite alternate; }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
 
-/* ── MINI-GAME ── */
-#mini-game { z-index:60; background:var(--bg); }
-.mini-hud { position:absolute; top:clamp(12px,3vw,24px); left:0; right:0; z-index:10; display:flex; justify-content:space-between; align-items:center; padding:0 clamp(16px,4vw,32px); }
-.mini-hud .timer { font-family:var(--font-display); font-weight:700; font-size:clamp(1.4rem,4vw,2rem); }
-.mini-hud .timer.warn { color:var(--wrong); animation:pulse 0.5s infinite alternate; }
-.mini-hud .found-count { font-family:var(--font-display); font-weight:700; font-size:clamp(0.85rem,2.5vw,1rem); opacity:0.7; }
-.mini-scene { position:absolute; inset:0; }
-.mini-scene svg { width:100%; height:100%; object-fit:cover; }
-.hidden-obj { position:absolute; width:clamp(36px,8vw,52px); height:clamp(36px,8vw,52px); border-radius:50%; cursor:pointer; transition:transform 0.2s var(--ease-bounce), opacity 0.3s; display:flex; align-items:center; justify-content:center; font-size:clamp(1.2rem,3vw,1.6rem); background:rgba(244,239,230,0.3); backdrop-filter:blur(2px); border:2px dashed rgba(26,26,26,0.15); }
-.hidden-obj:hover { transform:scale(1.15); border-color:var(--glow); }
-.hidden-obj.found { opacity:0; pointer-events:none; transform:scale(0.5); }
-.mini-prompt { position:absolute; bottom:clamp(24px,6vw,48px); left:50%; transform:translateX(-50%); z-index:10; font-family:var(--font-display); font-weight:700; font-size:clamp(0.85rem,2.5vw,1.1rem); background:rgba(244,239,230,0.92); backdrop-filter:blur(6px); padding:12px 24px; border-radius:14px; text-align:center; box-shadow:0 2px 12px rgba(0,0,0,0.08); }
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
 
-/* ── FINALE ── */
-#finale { z-index:70; background:var(--bg); padding:clamp(16px,5vw,40px); text-align:center; gap:clamp(12px,3vw,24px); overflow-y:auto; }
-.finale-joke { font-family:var(--font-body); font-weight:400; font-size:clamp(0.9rem,2.6vw,1.1rem); line-height:1.65; max-width:420px; opacity:0; transform:translateY(12px); transition:opacity 0.6s, transform 0.6s var(--ease-sincere); }
-.finale-joke.show { opacity:1; transform:translateY(0); }
-.finale-sincere { opacity:0; transform:translateY(16px); transition:opacity 0.8s 0.3s, transform 0.8s var(--ease-sincere) 0.3s; }
-.finale-sincere.show { opacity:1; transform:translateY(0); }
-.finale-sincere .headline { font-family:var(--font-display); font-weight:700; font-size:clamp(1.6rem,5vw,2.6rem); line-height:1.15; margin-bottom:clamp(6px,1.5vw,12px); }
-.finale-sincere .body-text { font-size:clamp(0.85rem,2.4vw,1rem); line-height:1.6; max-width:380px; margin:0 auto; opacity:0.75; }
-.finale-photo-wrap { width:clamp(140px,35vw,200px); height:clamp(140px,35vw,200px); margin:0 auto; border-radius:16px; overflow:hidden; position:relative; box-shadow:0 4px 24px rgba(0,0,0,0.1); opacity:0; transform:scale(0.9); transition:opacity 0.6s 0.6s, transform 0.6s var(--ease-bounce) 0.6s; }
-.finale-photo-wrap.show { opacity:1; transform:scale(1); }
-.finale-photo-wrap img { width:100%; height:100%; object-fit:cover; }
-.finale-photo-wrap .frame-border { position:absolute; inset:0; border:3px solid var(--glow); border-radius:16px; pointer-events:none; }
-.finale-sign { font-family:var(--font-body); font-weight:400; font-size:clamp(0.8rem,2.2vw,0.95rem); opacity:0; transition:opacity 0.5s 1s; }
-.finale-sign.show { opacity:0.6; }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
 
-/* ── TOAST ── */
-#toast { position:fixed; top:clamp(56px,12vw,80px); left:50%; transform:translateX(-50%) translateY(-20px); z-index:200; font-family:var(--font-display); font-weight:700; font-size:clamp(0.8rem,2.2vw,1rem); padding:10px 24px; border-radius:100px; opacity:0; pointer-events:none; transition:opacity 0.2s, transform 0.3s var(--ease-bounce); backdrop-filter:blur(8px); }
-#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
-#toast.toast-correct { background:rgba(58,125,99,0.15); color:var(--correct); border:1px solid rgba(58,125,99,0.25); }
-#toast.toast-wrong { background:rgba(193,68,61,0.15); color:var(--wrong); border:1px solid rgba(193,68,61,0.25); }
-#toast.toast-object { background:rgba(232,184,75,0.15); color:var(--glow); border:1px solid rgba(232,184,75,0.25); }
+    @keyframes goldPulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(232,184,75,0.3); }
+      50% { box-shadow: 0 0 40px rgba(232,184,75,0.6); }
+    }
 
-/* ── ANIMATIONS ── */
-@keyframes tremor { 0%{transform:translate(0,0) rotate(0deg)} 100%{transform:translate(1.5px,-1px) rotate(1deg)} }
-@keyframes pulse { 0%{opacity:1} 100%{opacity:0.5} }
-@keyframes fadeInUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-@keyframes sandFlow { 0%{height:0} 100%{height:60px} }
+    @keyframes timerPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
 
-/* ── REDUCED MOTION ── */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important; }
-}
+    @keyframes pop {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
+    }
 
-/* ── MOBILE LAYOUT ── */
-@media (max-width:768px) {
-  .choices { flex-direction:column; gap:clamp(8px,2vw,12px); padding:0 clamp(12px,3vw,20px); bottom:clamp(12px,3vw,20px); }
-  .prompt { top:clamp(44px,8vw,64px); font-size:clamp(0.82rem,2.4vw,1rem); padding:clamp(8px,2vw,12px) clamp(14px,3vw,20px); max-width:clamp(260px,80vw,400px); }
-  .round-bg svg { object-fit:cover; }
-}
-@media (min-width:769px) {
-  .choices { flex-direction:column; max-width:340px; left:clamp(16px,3vw,40px); bottom:clamp(24px,4vw,48px); right:auto; }
-  .choices.right-side { left:auto; right:clamp(16px,3vw,40px); }
-}
-</style>
+    h1, h2, h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      line-height: 1.15;
+    }
+
+    .title-big {
+      font-size: clamp(2.4rem, 8vw, 5rem);
+      letter-spacing: -0.03em;
+    }
+    .title-med {
+      font-size: clamp(1.6rem, 5vw, 2.8rem);
+      letter-spacing: -0.02em;
+    }
+    .title-sm {
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      letter-spacing: -0.01em;
+    }
+
+    .subtitle {
+      font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+      opacity: 0.7;
+      margin-top: 12px;
+      line-height: 1.5;
+      max-width: 420px;
+    }
+
+    .body-text {
+      font-size: clamp(0.9rem, 2.2vw, 1.05rem);
+      line-height: 1.6;
+      max-width: 440px;
+    }
+
+    .btn-primary {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: clamp(1rem, 2.8vw, 1.2rem);
+      padding: 16px 40px;
+      border: none;
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--bg);
+      cursor: pointer;
+      transition: transform 0.2s var(--ease-bounce), box-shadow 0.2s ease;
+      min-height: 56px;
+      min-width: 200px;
+      touch-action: manipulation;
+    }
+    .btn-primary:hover { transform: scale(1.04); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+    .btn-primary:active { transform: scale(0.97); }
+
+    .choice-btn {
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: clamp(0.95rem, 2.4vw, 1.1rem);
+      padding: 18px 28px;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      transition: transform 0.2s var(--ease-bounce), background 0.2s ease, border-color 0.2s ease;
+      width: 100%;
+      max-width: 480px;
+      text-align: left;
+      line-height: 1.45;
+      touch-action: manipulation;
+      min-height: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .choice-btn:hover { background: rgba(26,26,26,0.05); transform: translateY(-2px); }
+    .choice-btn:active { transform: scale(0.98); }
+    .choice-btn + .choice-btn { margin-top: 12px; }
+
+    .choice-btn.correct {
+      border-color: var(--correct);
+      background: rgba(58,125,99,0.08);
+      animation: pulse 0.6s var(--ease-bounce);
+    }
+    .choice-btn.wrong {
+      border-color: var(--wrong);
+      background: rgba(193,68,61,0.08);
+      animation: pulse 0.6s var(--ease-bounce);
+    }
+    .choice-btn.disabled {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+    .choice-btn .label {
+      display: block;
+      font-size: 0.75em;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-top: 6px;
+    }
+    .choice-btn .label.correct-label { color: var(--correct); }
+    .choice-btn .label.wrong-label { color: var(--wrong); }
+
+    .choices-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      max-width: 480px;
+      margin-top: 28px;
+    }
+
+    .round-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: clamp(0.75rem, 2vw, 0.85rem);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      opacity: 0.5;
+      margin-bottom: 16px;
+    }
+
+    .progress-dots {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 100;
+      padding: 8px 16px;
+      background: rgba(244,239,230,0.85);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(26,26,26,0.15);
+      transition: background 0.3s ease, transform 0.3s var(--ease-bounce);
+    }
+    .dot.active { background: var(--glow); transform: scale(1.2); }
+    .dot.correct { background: var(--correct); }
+    .dot.wrong { background: var(--wrong); }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(120px);
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      font-size: clamp(0.85rem, 2.2vw, 1rem);
+      padding: 14px 24px;
+      border-radius: var(--radius);
+      background: var(--ink);
+      color: var(--bg);
+      z-index: 200;
+      white-space: nowrap;
+      transition: transform 0.4s var(--ease-bounce), opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+    #toast.toast-correct { background: var(--correct); }
+    #toast.toast-wrong { background: var(--wrong); }
+
+    .photo-frame {
+      width: clamp(160px, 40vw, 240px);
+      height: clamp(160px, 40vw, 240px);
+      border-radius: 50%;
+      border: 4px solid var(--glow);
+      overflow: hidden;
+      margin: 0 auto;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.8s var(--ease-sincere), transform 0.8s var(--ease-sincere);
+    }
+    .photo-frame.reveal { opacity: 1; transform: scale(1); }
+    .photo-frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .timer-bar-wrap {
+      width: 100%;
+      max-width: 480px;
+      height: 8px;
+      background: rgba(26,26,26,0.1);
+      border-radius: 4px;
+      margin: 16px auto;
+      overflow: hidden;
+    }
+    .timer-bar {
+      height: 100%;
+      background: var(--glow);
+      border-radius: 4px;
+      transition: width 1s linear;
+    }
+    .timer-bar.urgent { background: var(--wrong); animation: timerPulse 0.5s ease infinite; }
+
+    .game-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 360px;
+      margin: 20px auto;
+    }
+    .game-cell {
+      aspect-ratio: 1;
+      border-radius: var(--radius);
+      border: 2px solid rgba(26,26,26,0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: clamp(1.5rem, 5vw, 2.2rem);
+      cursor: pointer;
+      transition: transform 0.15s var(--ease-bounce), border-color 0.2s ease, background 0.2s ease;
+      touch-action: manipulation;
+      background: rgba(255,255,255,0.5);
+      user-select: none;
+    }
+    .game-cell:active { transform: scale(0.92); }
+    .game-cell.found {
+      border-color: var(--correct);
+      background: rgba(58,125,99,0.1);
+      pointer-events: none;
+    }
+    .game-cell.reveal-item {
+      border-color: var(--glow);
+      background: rgba(232,184,75,0.1);
+      animation: pop 0.4s var(--ease-bounce);
+    }
+
+    .finale-screen {
+      gap: 8px;
+    }
+    .finale-screen .sincere-msg {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 1.2s var(--ease-sincere), opacity 0.8s ease;
+      opacity: 0;
+    }
+    .finale-screen .sincere-msg.show {
+      max-height: 300px;
+      opacity: 1;
+    }
+    .finale-screen .sig {
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    .finale-screen .sig.show { opacity: 1; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .choice-btn { padding: 16px 20px; }
+      .choices-wrap { gap: 10px; margin-top: 20px; }
+      .progress-dots { gap: 6px; padding: 6px 12px; }
+      .dot { width: 8px; height: 8px; }
+      .game-grid { gap: 8px; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- SVG filter defs -->
-<svg style="position:absolute;width:0;height:0;pointer-events:none" aria-hidden="true">
-<defs>
-  <filter id="wobble" x="-5%" y="-5%" width="110%" height="110%">
-    <feTurbulence type="turbulence" baseFrequency="0.02" numOctaves="1" seed="5" result="noise"/>
-    <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.5"/>
-  </filter>
-  <filter id="wobble-strong" x="-5%" y="-5%" width="110%" height="110%">
-    <feTurbulence type="turbulence" baseFrequency="0.015" numOctaves="2" seed="3" result="noise"/>
-    <feDisplacementMap in="SourceGraphic" in2="noise" scale="4"/>
-  </filter>
-</defs>
-</svg>
+  <!-- Progress Dots -->
+  <div class="progress-dots" id="progressDots"></div>
 
-<div id="app">
+  <!-- Toast -->
+  <div id="toast"></div>
 
-<!-- ── PROGRESS DOTS ── -->
-<div id="dots">
-  <div class="dot" data-r="4"></div>
-  <div class="dot" data-r="1"></div>
-  <div class="dot" data-r="2"></div>
-  <div class="dot" data-r="3"></div>
-  <div class="dot" data-r="5"></div>
-  <div class="dot" data-r="6"></div>
-  <div class="dot" data-r="7"></div>
-</div>
+  <!-- INTRO SCREEN -->
+  <div class="screen active" id="screen-intro">
+    <div class="round-badge">a gift from yug &amp; arham</div>
+    <h1 class="title-big">The Shelly Test</h1>
+    <p class="subtitle">Seven questions. One rule.<br>You can never pretend to be chill.</p>
+    <button class="btn-primary" onclick="Game.start()" style="margin-top: 32px;">Begin</button>
+  </div>
 
-<!-- ════════════════════════════════════════════ -->
-<!-- TITLE SCREEN                                -->
-<!-- ════════════════════════════════════════════ -->
-<section id="title-screen" class="screen active">
-  <div class="badge">23RD BIRTHDAY EDITION</div>
-  <h1>The Shelly<br>Test</h1>
-  <p class="sub">A completely fair and unbiased personality quiz with zero chance of winning.</p>
-  <button class="start-btn" onclick="startGame()">Start Test</button>
-</section>
+  <!-- ROUND SCREENS (dynamically filled) -->
+  <div id="round-container"></div>
 
-<!-- ════════════════════════════════════════════ -->
-<!-- ROUND 4 — THE CAR (reference quality)       -->
-<!-- ════════════════════════════════════════════ -->
-<section id="round-4" class="screen round" data-round="4">
-  <div class="round-bg">
-    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-      <!-- Sky -->
-      <rect fill="#B8D4E3" width="1200" height="400"/>
-      <!-- Clouds -->
-      <g filter="url(#wobble)" opacity="0.5">
-        <ellipse fill="#fff" cx="200" cy="100" rx="80" ry="30"/>
-        <ellipse fill="#fff" cx="900" cy="140" rx="60" ry="22"/>
-      </g>
-      <!-- Horizon grass -->
-      <rect fill="#7CB342" x="0" y="340" width="1200" height="80"/>
-      <!-- Road -->
-      <rect fill="#666" x="350" y="370" width="500" height="60" rx="2"/>
-      <!-- Center dashes -->
-      <g stroke="#FFD54F" stroke-width="3" stroke-dasharray="30 20">
-        <line x1="600" y1="400" x2="850" y2="400"/>
-      </g>
-      <!-- Trees -->
-      <g filter="url(#wobble)">
-        <rect fill="#5D4037" x="175" y="280" width="12" height="60"/>
-        <circle fill="#4CAF50" cx="181" cy="270" r="35"/>
-        <rect fill="#5D4037" x="1005" y="290" width="10" height="50"/>
-        <circle fill="#4CAF50" cx="1010" cy="280" r="28"/>
-      </g>
-      <!-- Car interior — dashboard -->
-      <rect fill="#5D4037" x="80" y="440" width="1040" height="360" rx="24"/>
-      <rect fill="#4E342E" x="100" y="460" width="1000" height="280" rx="16"/>
-      <!-- Steering wheel -->
-      <ellipse fill="none" stroke="#3E2723" stroke-width="8" cx="380" cy="600" rx="90" ry="80"/>
-      <line x1="380" y1="520" x2="380" y2="560" stroke="#3E2723" stroke-width="6"/>
-      <!-- Gauge cluster -->
-      <circle fill="#222" cx="380" cy="500" r="40"/>
-      <circle fill="#1B5E20" cx="380" cy="500" r="34"/>
-      <line x1="380" y1="500" x2="400" y2="480" stroke="#fff" stroke-width="2"/>
-      <circle fill="#222" cx="820" cy="500" r="40"/>
-      <circle fill="#1B5E20" cx="820" cy="500" r="34"/>
-      <line x1="820" y1="500" x2="840" y2="480" stroke="#fff" stroke-width="2"/>
-      <!-- Driver stickman -->
-      <g filter="url(#wobble)">
-        <circle fill="#FFD5A0" cx="340" cy="360" r="28"/>
-        <circle fill="#3E2723" cx="340" cy="348" r="12"/>
-        <line x1="340" y1="388" x2="340" y2="520" stroke="#5D4037" stroke-width="3.5" stroke-linecap="round"/>
-        <line x1="340" y1="430" x2="290" y2="470" stroke="#5D4037" stroke-width="3.5" stroke-linecap="round"/>
-        <line x1="340" y1="430" x2="400" y2="490" stroke="#5D4037" stroke-width="3.5" stroke-linecap="round"/>
-        <circle fill="#FFD5A0" cx="290" cy="470" r="8"/>
-        <circle fill="#FFD5A0" cx="400" cy="490" r="8"/>
-      </g>
-      <!-- Passenger / Shelly -->
-      <g class="passenger-group" filter="url(#wobble)">
-        <circle fill="#FFD5A0" cx="860" cy="360" r="28"/>
-        <!-- Hair -->
-        <path fill="#5D4037" d="M832,352 Q838,320 860,315 Q882,320 888,352 Q885,340 860,335 Q835,340 832,352Z"/>
-        <line x1="860" y1="388" x2="860" y2="520" stroke="#5D4037" stroke-width="3.5" stroke-linecap="round"/>
-        <!-- Arms -->
-        <line x1="860" y1="430" x2="810" y2="470" stroke="#5D4037" stroke-width="3.5" stroke-linecap="round"/>
-        <line x1="860" y1="430" x2="910" y2="470" stroke="#5D4037" stroke-width="3.5" stroke-linecap="round"/>
-        <!-- Feet on dashboard -->
-        <line x1="860" y1="520" x2="920" y2="430" stroke="#5D4037" stroke-width="3.5" stroke-linecap="round"/>
-        <line x1="860" y1="520" x2="800" y2="430" stroke="#5D4037" stroke-width="3.5" stroke-linecap="round"/>
-        <circle fill="#FFD5A0" cx="920" cy="430" r="8"/>
-        <circle fill="#FFD5A0" cx="800" cy="430" r="8"/>
-      </g>
-      <!-- Seatbelt (animated in on wrong hover) -->
-      <path class="seatbelt-line" d="M980,390 Q940,440 870,540" fill="none" stroke="#333" stroke-width="5" stroke-linecap="round"/>
-      <!-- Seatbelt buckle -->
-      <rect class="seatbelt-line" x="858" y="530" width="16" height="12" rx="3" fill="#888"/>
-    </svg>
+  <!-- MINI-GAME SCREEN -->
+  <div class="screen" id="screen-minigame">
+    <div class="round-badge">round 8 &mdash; escape room</div>
+    <h2 class="title-med">Escape the Interrogation Room</h2>
+    <p class="subtitle">Find all 5 hidden clues before time runs out.</p>
+    <div class="timer-bar-wrap"><div class="timer-bar" id="minigameTimerBar"></div></div>
+    <p class="body-text" id="minigameStatus" style="margin: 12px 0;">Clues found: 0 / 5</p>
+    <div class="game-grid" id="gameGrid"></div>
   </div>
-  <div class="prompt">Someone puts their feet on the dashboard of your car.</div>
-  <div class="choices">
-    <button class="choice-btn" data-correct="true" onclick="handleChoice(4,true,this)">
-      <span class="choice-label">A</span>Takes feet down. Says nothing.
-    </button>
-    <button class="choice-btn" data-correct="false" onclick="handleChoice(4,false,this)">
-      <span class="choice-label">B</span>Delivers a 10-minute safety lecture.
-    </button>
-  </div>
-</section>
 
-<!-- ════════════════════════════════════════════ -->
-<!-- ROUND 1 — THE HOUSE                         -->
-<!-- ════════════════════════════════════════════ -->
-<section id="round-1" class="screen round" data-round="1">
-  <div class="round-bg">
-    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-      <!-- Room walls -->
-      <rect fill="#E8DCC8" width="1200" height="800"/>
-      <rect fill="#D7C9B5" x="0" y="600" width="1200" height="200"/>
-      <!-- Couch -->
-      <g filter="url(#wobble)">
-        <rect fill="#8D6E63" x="80" y="480" width="300" height="100" rx="16"/>
-        <rect fill="#A1887F" x="60" y="460" width="60" height="120" rx="10"/>
-        <rect fill="#A1887F" x="340" y="460" width="60" height="120" rx="10"/>
-      </g>
-      <!-- Table -->
-      <g filter="url(#wobble)">
-        <rect fill="#5D4037" x="550" y="400" width="200" height="12" rx="4"/>
-        <rect fill="#5D4037" x="570" y="412" width="8" height="140"/>
-        <rect fill="#5D4037" x="722" y="412" width="8" height="140"/>
-      </g>
-      <!-- Cups on table -->
-      <rect fill="#fff" x="580" y="380" width="20" height="20" rx="3" opacity="0.8"/>
-      <rect fill="#fff" x="620" y="378" width="22" height="22" rx="3" opacity="0.8"/>
-      <!-- SPILLED DRINK on floor -->
-      <g filter="url(#wobble)">
-        <ellipse fill="#C1443D" cx="680" cy="650" rx="60" ry="18" opacity="0.6"/>
-        <ellipse fill="#C1443D" cx="680" cy="650" rx="35" ry="10" opacity="0.8"/>
-        <!-- Knocked cup -->
-        <rect fill="#fff" x="640" y="620" width="18" height="22" rx="3" transform="rotate(70 649 631)"/>
-      </g>
-      <!-- Partygoers -->
-      <g filter="url(#wobble)" opacity="0.4">
-        <circle fill="#FFD5A0" cx="900" cy="380" r="18"/><line x1="900" y1="398" x2="900" y2="470" stroke="#5D4037" stroke-width="2.5"/>
-        <circle fill="#FFD5A0" cx="980" cy="390" r="16"/><line x1="980" y1="406" x2="980" y2="470" stroke="#5D4037" stroke-width="2.5"/>
-        <circle fill="#FFD5A0" cx="1060" cy="385" r="17"/><line x1="1060" y1="402" x2="1060" y2="470" stroke="#5D4037" stroke-width="2.5"/>
-      </g>
-      <!-- Music notes -->
-      <g fill="#5D4037" opacity="0.2" font-size="28" font-family="serif">
-        <text x="150" y="200">♪</text><text x="1050" y="180">♫</text><text x="600" y="150">♪</text>
-      </g>
-      <!-- Streamers -->
-      <g stroke="#E8B84B" stroke-width="3" fill="none" opacity="0.35" filter="url(#wobble)">
-        <path d="M100,50 Q200,120 300,50 Q400,120 500,50"/>
-        <path d="M700,60 Q800,130 900,60 Q1000,130 1100,60"/>
-      </g>
-      <!-- Balloons -->
-      <g filter="url(#wobble)" opacity="0.3">
-        <ellipse fill="#C1443D" cx="200" cy="120" rx="22" ry="28"/><line x1="200" y1="148" x2="200" y2="200" stroke="#5D4037" stroke-width="1"/>
-        <ellipse fill="#3A7D63" cx="1000" cy="100" rx="20" ry="26"/><line x1="1000" y1="126" x2="1000" y2="180" stroke="#5D4037" stroke-width="1"/>
-      </g>
-    </svg>
-  </div>
-  <div class="prompt">A drink gets spilled at the party.</div>
-  <div class="choices">
-    <button class="choice-btn" data-correct="true" onclick="handleChoice(1,true,this)">
-      <span class="choice-label">A</span>Grabs napkins. Helps clean up.
-    </button>
-    <button class="choice-btn" data-correct="false" onclick="handleChoice(1,false,this)">
-      <span class="choice-label">B</span>Gasps so loud the music stops.
-    </button>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════ -->
-<!-- ROUND 2 — OUT AND ABOUT                     -->
-<!-- ════════════════════════════════════════════ -->
-<section id="round-2" class="screen round" data-round="2">
-  <div class="round-bg">
-    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-      <!-- Sky -->
-      <rect fill="#B8D4E3" width="1200" height="400"/>
-      <!-- Sidewalk -->
-      <rect fill="#D7C9B5" x="0" y="500" width="1200" height="300"/>
-      <rect fill="#C4B8A4" x="0" y="500" width="1200" height="8"/>
-      <!-- Building -->
-      <g filter="url(#wobble)">
-        <rect fill="#BCAAA4" x="800" y="200" width="300" height="300" rx="4"/>
-        <rect fill="#8D6E63" x="880" y="350" width="80" height="150" rx="4"/>
-        <rect fill="#B8D4E3" x="840" y="250" width="50" height="50" rx="2" opacity="0.6"/>
-        <rect fill="#B8D4E3" x="930" y="250" width="50" height="50" rx="2" opacity="0.6"/>
-        <rect fill="#B8D4E3" x="1020" y="250" width="50" height="50" rx="2" opacity="0.6"/>
-      </g>
-      <!-- Queue of people -->
-      <g filter="url(#wobble)">
-        <!-- Person 1 (back of line) -->
-        <circle fill="#FFD5A0" cx="250" cy="430" r="22"/>
-        <line x1="250" y1="452" x2="250" y2="540" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-        <line x1="250" y1="540" x2="230" y2="600" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-        <line x1="250" y1="540" x2="270" y2="600" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-        <!-- Person 2 -->
-        <circle fill="#FFD5A0" cx="380" cy="430" r="22"/>
-        <line x1="380" y1="452" x2="380" y2="540" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-        <line x1="380" y1="540" x2="360" y2="600" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-        <line x1="380" y1="540" x2="400" y2="600" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-        <!-- Person 3 -->
-        <circle fill="#FFD5A0" cx="510" cy="430" r="22"/>
-        <line x1="510" y1="452" x2="510" y2="540" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-        <line x1="510" y1="540" x2="490" y2="600" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-        <line x1="510" y1="540" x2="530" y2="600" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-      </g>
-      <!-- THE CUTTER — ahead of the line, looking back smugly -->
-      <g filter="url(#wobble)">
-        <circle fill="#FFD5A0" cx="700" cy="430" r="22"/>
-        <path fill="#5D4037" d="M678,422 Q685,400 700,395 Q715,400 722,422 Q718,412 700,408 Q682,412 678,422Z"/>
-        <line x1="700" y1="452" x2="700" y2="540" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-        <line x1="700" y1="540" x2="680" y2="600" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-        <line x1="700" y1="540" x2="720" y2="600" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-        <!-- Smug grin -->
-        <path fill="none" stroke="#5D4037" stroke-width="2" d="M690,440 Q700,448 710,440"/>
-        <!-- Looking back -->
-        <circle fill="#1A1A1A" cx="708" cy="428" r="3"/>
-      </g>
-      <!-- Angry thought bubble from person 3 -->
-      <g opacity="0.25">
-        <text x="530" y="400" font-size="20" fill="#C1443D" font-family="serif">!</text>
-      </g>
-    </svg>
-  </div>
-  <div class="prompt">Someone cuts in front of you in line.</div>
-  <div class="choices">
-    <button class="choice-btn" data-correct="true" onclick="handleChoice(2,true,this)">
-      <span class="choice-label">A</span>Lets it go. Waits patiently.
-    </button>
-    <button class="choice-btn" data-correct="false" onclick="handleChoice(2,false,this)">
-      <span class="choice-label">B</span>Steps forward and says "excuse me."
-    </button>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════ -->
-<!-- ROUND 3 — BIRTHDAY PARTY                    -->
-<!-- ════════════════════════════════════════════ -->
-<section id="round-3" class="screen round" data-round="3">
-  <div class="round-bg">
-    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-      <!-- Room -->
-      <rect fill="#E8DCC8" width="1200" height="800"/>
-      <rect fill="#D7C9B5" x="0" y="600" width="1200" height="200"/>
-      <!-- Table -->
-      <g filter="url(#wobble)">
-        <rect fill="#5D4037" x="300" y="440" width="600" height="14" rx="4"/>
-        <rect fill="#5D4037" x="340" y="454" width="8" height="150"/>
-        <rect fill="#5D4037" x="852" y="454" width="8" height="150"/>
-      </g>
-      <!-- Cake -->
-      <g filter="url(#wobble)">
-        <rect fill="#fff" x="520" y="380" width="160" height="60" rx="8"/>
-        <rect fill="#F8BBD0" x="520" y="370" width="160" height="16" rx="8"/>
-        <!-- Wrong name -->
-        <text x="600" y="418" text-anchor="middle" font-family="var(--font-display)" font-weight="700" font-size="16" fill="#C1443D">Happy Birthday Kevin!</text>
-        <!-- Candles -->
-        <rect fill="#FFD54F" x="550" y="345" width="6" height="25" rx="2"/>
-        <ellipse fill="#FF9800" cx="553" cy="340" rx="5" ry="8"/>
-        <rect fill="#FFD54F" x="595" y="345" width="6" height="25" rx="2"/>
-        <ellipse fill="#FF9800" cx="598" cy="340" rx="5" ry="8"/>
-        <rect fill="#FFD54F" x="640" y="345" width="6" height="25" rx="2"/>
-        <ellipse fill="#FF9800" cx="643" cy="340" rx="5" ry="8"/>
-      </g>
-      <!-- Balloons -->
-      <g filter="url(#wobble)" opacity="0.35">
-        <ellipse fill="#C1443D" cx="180" cy="150" rx="28" ry="35"/><line x1="180" y1="185" x2="180" y2="280" stroke="#5D4037" stroke-width="1.5"/>
-        <ellipse fill="#3A7D63" cx="1020" cy="130" rx="26" ry="33"/><line x1="1020" y1="163" x2="1020" y2="260" stroke="#5D4037" stroke-width="1.5"/>
-        <ellipse fill="#E8B84B" cx="600" cy="100" rx="30" ry="38"/><line x1="600" y1="138" x2="600" y2="240" stroke="#5D4037" stroke-width="1.5"/>
-      </g>
-      <!-- Streamers -->
-      <g stroke="#E8B84B" stroke-width="2.5" fill="none" opacity="0.3" filter="url(#wobble)">
-        <path d="M50,40 Q200,100 350,40 Q500,100 650,40"/>
-        <path d="M550,50 Q700,110 850,50 Q1000,110 1150,50"/>
-      </g>
-      <!-- Party hats on table edge -->
-      <g filter="url(#wobble)" opacity="0.3">
-        <polygon fill="#3A7D63" points="350,440 365,380 380,440"/>
-        <polygon fill="#C1443D" points="820,440 835,380 850,440"/>
-      </g>
-    </svg>
-  </div>
-  <div class="prompt">The birthday cake has the wrong name on it.</div>
-  <div class="choices">
-    <button class="choice-btn" data-correct="true" onclick="handleChoice(3,true,this)">
-      <span class="choice-label">A</span>Just laughs and eats the cake.
-    </button>
-    <button class="choice-btn" data-correct="false" onclick="handleChoice(3,false,this)">
-      <span class="choice-label">B</span>Announces the mistake to the whole room.
-    </button>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════ -->
-<!-- ROUND 5 — FAMILY DINNER                     -->
-<!-- ════════════════════════════════════════════ -->
-<section id="round-5" class="screen round" data-round="5">
-  <div class="round-bg">
-    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-      <!-- Restaurant ambiance -->
-      <rect fill="#3E2723" width="1200" height="800"/>
-      <rect fill="#4E342E" x="0" y="0" width="1200" height="600"/>
-      <!-- Warm light -->
-      <circle fill="#FFD54F" cx="600" cy="50" r="200" opacity="0.08"/>
-      <!-- Table -->
-      <g filter="url(#wobble)">
-        <rect fill="#5D4037" x="200" y="450" width="800" height="16" rx="4"/>
-        <rect fill="#5D4037" x="240" y="466" width="8" height="180"/>
-        <rect fill="#5D4037" x="952" y="466" width="8" height="180"/>
-      </g>
-      <!-- White tablecloth edge -->
-      <rect fill="#fff" x="200" y="446" width="800" height="8" rx="2" opacity="0.15"/>
-      <!-- Plates -->
-      <g filter="url(#wobble)">
-        <circle fill="#fff" cx="400" cy="430" r="45" opacity="0.9"/>
-        <circle fill="#E8DCC8" cx="400" cy="430" r="35" opacity="0.3"/>
-        <circle fill="#fff" cx="800" cy="430" r="45" opacity="0.9"/>
-        <circle fill="#E8DCC8" cx="800" cy="430" r="35" opacity="0.3"/>
-      </g>
-      <!-- Glasses -->
-      <g filter="url(#wobble)" opacity="0.6">
-        <rect fill="#B8D4E3" x="460" y="400" width="14" height="30" rx="3"/>
-        <rect fill="#B8D4E3" x="730" y="400" width="14" height="30" rx="3"/>
-      </g>
-      <!-- WAITER with wrong dish -->
-      <g filter="url(#wobble)">
-        <circle fill="#FFD5A0" cx="600" cy="300" r="24"/>
-        <rect fill="#fff" x="580" y="285" width="40" height="10" rx="2"/><!-- bow tie -->
-        <line x1="600" y1="324" x2="600" y2="430" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-        <line x1="600" y1="370" x2="540" y2="410" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-        <line x1="600" y1="370" x2="660" y2="390" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-        <!-- Tray with wrong dish -->
-        <rect fill="#888" x="620" y="380" width="80" height="6" rx="2"/>
-        <circle fill="#8D6E63" cx="660" cy="370" r="18"/><!-- mysterious wrong food -->
-        <text x="660" y="375" text-anchor="middle" font-size="14" fill="#fff" opacity="0.5">?</text>
-      </g>
-    </svg>
-  </div>
-  <div class="prompt">The waiter brings the wrong order.</div>
-  <div class="choices">
-    <button class="choice-btn" data-correct="true" onclick="handleChoice(5,true,this)">
-      <span class="choice-label">A</span>Politely tells the waiter.
-    </button>
-    <button class="choice-btn" data-correct="false" onclick="handleChoice(5,false,this)">
-      <span class="choice-label">B</span>Pushes plate away. Demands to see the chef.
-    </button>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════ -->
-<!-- ROUND 6 — THE INTERROGATION ROOM            -->
-<!-- ════════════════════════════════════════════ -->
-<section id="round-6" class="screen round" data-round="6">
-  <div class="round-bg">
-    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-      <!-- Dark room -->
-      <rect fill="#1A1A1A" width="1200" height="800"/>
-      <!-- Spotlight cone from bulb -->
-      <polygon fill="#FFD54F" points="600,40 500,800 700,800" opacity="0.06"/>
-      <!-- Hanging lightbulb -->
-      <g filter="url(#wobble)">
-        <line x1="600" y1="0" x2="600" y2="60" stroke="#888" stroke-width="2"/>
-        <ellipse fill="#FFD54F" cx="600" cy="80" rx="20" ry="28" opacity="0.9"/>
-        <circle fill="#FFEB3B" cx="600" cy="75" r="8" opacity="0.6"/>
-      </g>
-      <!-- Table -->
-      <g filter="url(#wobble)">
-        <rect fill="#5D4037" x="350" y="480" width="500" height="14" rx="4"/>
-        <rect fill="#5D4037" x="380" y="494" width="8" height="160"/>
-        <rect fill="#5D4037" x="812" y="494" width="8" height="160"/>
-      </g>
-      <!-- Phone on table -->
-      <g filter="url(#wobble)">
-        <rect fill="#333" x="560" y="455" width="80" height="28" rx="6"/>
-        <rect fill="#2196F3" x="565" y="459" width="70" height="20" rx="3" opacity="0.4"/>
-        <!-- Lock icon on phone -->
-        <rect fill="#C1443D" x="590" y="462" width="20" height="14" rx="3" opacity="0.7"/>
-        <path fill="none" stroke="#fff" stroke-width="2" d="M596,462 L596,457 Q600,450 604,457 L604,462" opacity="0.6"/>
-      </g>
-      <!-- Door with lock -->
-      <g filter="url(#wobble)">
-        <rect fill="#3E2723" x="1000" y="300" width="120" height="300" rx="4"/>
-        <circle fill="#888" cx="1090" cy="450" r="10"/>
-        <rect fill="#C1443D" x="1084" y="440" width="12" height="8" rx="2"/>
-      </g>
-      <!-- Shadows -->
-      <rect fill="#000" x="0" y="600" width="1200" height="200" opacity="0.3"/>
-    </svg>
-  </div>
-  <div class="prompt">You get locked out of your phone after too many wrong passwords.</div>
-  <div class="choices">
-    <button class="choice-btn" data-correct="true" onclick="handleChoice(6,true,this)">
-      <span class="choice-label">A</span>Uses backup phone. Moves on.
-    </button>
-    <button class="choice-btn" data-correct="false" onclick="handleChoice(6,false,this)">
-      <span class="choice-label">B</span>Tries every password combination while narrating.
-    </button>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════ -->
-<!-- ROUND 7 — ROAD TRIP                         -->
-<!-- ════════════════════════════════════════════ -->
-<section id="round-7" class="screen round" data-round="7">
-  <div class="round-bg">
-    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-      <!-- Sky -->
-      <rect fill="#B8D4E3" width="1200" height="350"/>
-      <!-- Mountains -->
-      <g filter="url(#wobble)" opacity="0.3">
-        <polygon fill="#7CB342" points="0,350 200,180 400,350"/>
-        <polygon fill="#689F38" points="300,350 550,150 800,350"/>
-        <polygon fill="#7CB342" points="700,350 950,200 1200,350"/>
-      </g>
-      <!-- Road -->
-      <rect fill="#666" x="0" y="350" width="1200" height="80"/>
-      <g stroke="#FFD54F" stroke-width="3" stroke-dasharray="30 20">
-        <line x1="0" y1="390" x2="1200" y2="390"/>
-      </g>
-      <!-- Car interior (backseat view) -->
-      <rect fill="#5D4037" x="0" y="430" width="1200" height="370" rx="0"/>
-      <rect fill="#4E342E" x="0" y="430" width="1200" height="10"/>
-      <!-- Two front seats -->
-      <g filter="url(#wobble)">
-        <rect fill="#3E2723" x="150" y="460" width="350" height="200" rx="20"/>
-        <rect fill="#3E2723" x="700" y="460" width="350" height="200" rx="20"/>
-      </g>
-      <!-- Driver -->
-      <g filter="url(#wobble)">
-        <circle fill="#FFD5A0" cx="325" cy="420" r="22"/>
-        <circle fill="#3E2723" cx="325" cy="408" r="10"/>
-        <line x1="325" y1="442" x2="325" y2="530" stroke="#5D4037" stroke-width="3"/>
-        <line x1="325" y1="470" x2="280" y2="510" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-        <line x1="325" y1="470" x2="380" y2="490" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-      </g>
-      <!-- Front passenger -->
-      <g filter="url(#wobble)">
-        <circle fill="#FFD5A0" cx="875" cy="420" r="22"/>
-        <line x1="875" y1="442" x2="875" y2="530" stroke="#5D4037" stroke-width="3"/>
-        <line x1="875" y1="470" x2="830" y2="510" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-        <line x1="875" y1="470" x2="920" y2="490" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-      </g>
-      <!-- AUX CORD — the contested territory -->
-      <g filter="url(#wobble)">
-        <path fill="none" stroke="#888" stroke-width="3" d="M600,430 Q580,500 550,560 Q530,600 560,640"/>
-        <rect fill="#333" x="545" y="635" width="30" height="18" rx="4"/>
-        <circle fill="#4CAF50" cx="560" cy="644" r="4"/>
-      </g>
-      <!-- Backseat passengers (Shelly reaching for aux) -->
-      <g filter="url(#wobble)">
-        <circle fill="#FFD5A0" cx="500" cy="650" r="20"/>
-        <path fill="#5D4037" d="M480,644 Q486,624 500,620 Q514,624 520,644 Q516,634 500,630 Q484,634 480,644Z"/>
-        <line x1="500" y1="670" x2="500" y2="740" stroke="#5D4037" stroke-width="3"/>
-        <!-- Arm reaching for aux -->
-        <line x1="500" y1="690" x2="560" y2="650" stroke="#5D4037" stroke-width="3" stroke-linecap="round"/>
-      </g>
-      <!-- Music notes floating -->
-      <g fill="#5D4037" opacity="0.2" font-size="22" font-family="serif">
-        <text x="540" y="620">♪</text>
-        <text x="570" y="610">♫</text>
-      </g>
-    </svg>
-  </div>
-  <div class="prompt">Your friend grabs the aux cord without asking.</div>
-  <div class="choices">
-    <button class="choice-btn" data-correct="true" onclick="handleChoice(7,true,this)">
-      <span class="choice-label">A</span>Takes turns fairly.
-    </button>
-    <button class="choice-btn" data-correct="false" onclick="handleChoice(7,false,this)">
-      <span class="choice-label">B</span>Claims aux = DJ rights for the entire trip.
-    </button>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════════ -->
-<!-- MINI-GAME — ESCAPE THE INTERROGATION ROOM   -->
-<!-- ════════════════════════════════════════════ -->
-<section id="mini-game" class="screen">
-  <div class="mini-hud">
-    <div class="timer" id="mini-timer">30</div>
-    <div class="found-count" id="mini-found">0 / 5</div>
-  </div>
-  <div class="mini-scene">
-    <svg viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-      <rect fill="#1A1A1A" width="1200" height="800"/>
-      <polygon fill="#FFD54F" points="600,40 500,800 700,800" opacity="0.06"/>
-      <g filter="url(#wobble)">
-        <line x1="600" y1="0" x2="600" y2="60" stroke="#888" stroke-width="2"/>
-        <ellipse fill="#FFD54F" cx="600" cy="80" rx="20" ry="28" opacity="0.9"/>
-        <circle fill="#FFEB3B" cx="600" cy="75" r="8" opacity="0.6"/>
-      </g>
-      <g filter="url(#wobble)">
-        <rect fill="#5D4037" x="350" y="480" width="500" height="14" rx="4"/>
-        <rect fill="#5D4037" x="380" y="494" width="8" height="160"/>
-        <rect fill="#5D4037" x="812" y="494" width="8" height="160"/>
-      </g>
-      <g filter="url(#wobble)">
-        <rect fill="#3E2723" x="1000" y="300" width="120" height="300" rx="4"/>
-        <circle fill="#888" cx="1090" cy="450" r="10"/>
-        <rect fill="#C1443D" x="1084" y="440" width="12" height="8" rx="2"/>
-      </g>
-      <!-- Hourglass -->
-      <g transform="translate(100,350)" filter="url(#wobble)">
-        <rect fill="#8D6E63" x="20" y="0" width="60" height="6" rx="2"/>
-        <rect fill="#8D6E63" x="20" y="144" width="60" height="6" rx="2"/>
-        <path fill="none" stroke="#8D6E63" stroke-width="3" d="M25,6 Q50,50 50,75 Q50,100 75,144"/>
-        <path fill="none" stroke="#8D6E63" stroke-width="3" d="M75,6 Q50,50 50,75 Q50,100 25,144"/>
-        <rect id="hourglass-sand" fill="#E8B84B" x="38" y="80" width="24" height="0" opacity="0.7"/>
-      </g>
-      <rect fill="#000" x="0" y="600" width="1200" height="200" opacity="0.3"/>
-    </svg>
-  </div>
-  <!-- 5 hidden objects — subtle hints only visible on hover -->
-  <div class="hidden-obj" data-obj="key" style="left:8%;top:72%" title="key">🔑</div>
-  <div class="hidden-obj" data-obj="note" style="left:42%;top:62%" title="note">📝</div>
-  <div class="hidden-obj" data-obj="hairpin" style="left:48%;top:8%" title="hairpin">📌</div>
-  <div class="hidden-obj" data-obj="brick" style="left:88%;top:78%" title="brick">🧱</div>
-  <div class="hidden-obj" data-obj="coin" style="left:72%;top:56%" title="coin">🪙</div>
-  <div class="mini-prompt">Find 5 hidden objects before time runs out!</div>
-</section>
-
-<!-- ════════════════════════════════════════════ -->
-<!-- FINALE                                      -->
-<!-- ════════════════════════════════════════════ -->
-<section id="finale" class="screen">
-  <div class="finale-joke" id="finale-joke">
-    <p>The quiz was completely rigged.</p>
-    <p style="margin-top:12px">Every "correct" answer was the boring one.<br>Every Shelly answer was "wrong."</p>
-    <p style="margin-top:12px">There was no way to win.</p>
-    <p style="margin-top:16px;font-weight:700;font-family:var(--font-display)">We just wanted to prove what we already knew:</p>
-    <p style="margin-top:8px;font-weight:700;font-family:var(--font-display);font-size:1.15em">You are never, ever chill.</p>
-  </div>
-  <div class="finale-sincere" id="finale-sincere">
-    <p class="headline">But honestly?<br>That's exactly why we love you.</p>
-    <div class="finale-photo-wrap" id="finale-photo">
-      <img src="shelly-photo.jpeg" alt="Shelly" loading="lazy"/>
-      <div class="frame-border"></div>
+  <!-- FINALE SCREEN -->
+  <div class="screen finale-screen" id="screen-finale">
+    <div class="round-badge" id="finaleBadge"></div>
+    <h2 class="title-med" id="finaleJoke"></h2>
+    <p class="body-text" id="finaleJokeSub"></p>
+    <div class="sincere-msg" id="finaleSincereWrap">
+      <p class="body-text" id="finaleSincere" style="margin-top: 16px;"></p>
     </div>
-    <p class="body-text" style="margin-top:clamp(12px,3vw,20px)">Happy 23rd Birthday, Shelly.</p>
+    <div class="photo-frame" id="finalePhoto">
+      <img src="shelly-photo.jpeg" alt="Shelly">
+    </div>
+    <p class="sig" id="finaleSig" style="margin-top: 24px; font-size: clamp(0.85rem, 2vw, 1rem); opacity: 0.6;">
+      happy birthday, shelly.<br>never change.
+    </p>
   </div>
-  <div class="finale-sign" id="finale-sign">Love, Yug & Arham</div>
-</section>
 
-<!-- Toast -->
-<div id="toast"></div>
+  <script>
+    const ROUNDS = [
+      {
+        id: 1, theme: 'coffee',
+        q: 'You spill coffee on your laptop. What\'s your first move?',
+        correct: 'Stay calm. Save the files. Rice can wait.',
+        wrong: 'Scream, blame the mug, and take 14 photos for Instagram.',
+        correctLabel: 'Reasonable',
+        wrongLabel: 'The real Shelly',
+        toastWrong: 'THE MUG GETS BLAMED 😤',
+      },
+      {
+        id: 2, theme: 'uber',
+        q: 'Your Uber is 3 minutes away. What do you do?',
+        correct: 'Put on shoes. Walk to the door. Simple.',
+        wrong: 'Panic. Check the map 11 times. Text "omw" while still in pajamas.',
+        correctLabel: 'Reasonable',
+        wrongLabel: 'The real Shelly',
+        toastWrong: 'YOU TEXTED "I\'M HERE" FROM THE COUCH 😭',
+      },
+      {
+        id: 3, theme: 'plans',
+        q: 'Friday night plans fall through. You...',
+        correct: 'Stay in. Read a book. Early night.',
+        wrong: 'Overanalyze. Text everyone. End up binge-watching at 2 AM.',
+        correctLabel: 'Reasonable',
+        wrongLabel: 'The real Shelly',
+        toastWrong: 'THE OVERANALYZING IS REAL 🫠',
+      },
+      {
+        id: 4, theme: 'car',
+        q: 'Someone is tailgating you aggressively.',
+        correct: 'Move over when safe. Let them pass. Breathe.',
+        wrong: 'Brake-check them, make eye contact in the mirror, mutter threats.',
+        correctLabel: 'Reasonable',
+        wrongLabel: 'The real Shelly',
+        toastWrong: 'THE BRAKE CHECK IS INSTINCTIVE 🚗',
+        seatbelt: true,
+      },
+      {
+        id: 5, theme: 'phone',
+        q: 'Your phone dies at 7%. What do you do?',
+        correct: 'Find a charger or turn on low power mode.',
+        wrong: 'Mental breakdown. Frantically text everyone "MY PHONE MIGHT DIE."',
+        correctLabel: 'Reasonable',
+        wrongLabel: 'The real Shelly',
+        toastWrong: 'THE PREEMPTIVE GOODBYE TEXT 😂',
+      },
+      {
+        id: 6, theme: 'wifi',
+        q: 'WiFi goes down for 10 minutes. Your reaction?',
+        correct: 'Wait. Maybe read a book. No big deal.',
+        wrong: 'Check router, restart phone, reboot laptop, question all life choices.',
+        correctLabel: 'Reasonable',
+        wrongLabel: 'The real Shelly',
+        toastWrong: 'THE FULL IT DEPARTMENT ACTIVATED 💀',
+      },
+      {
+        id: 7, theme: 'restaurant',
+        q: 'Your food order comes wrong. What do you do?',
+        correct: 'Politely tell the server. Get it fixed. Move on.',
+        wrong: 'Say it\'s fine. Eat it. Compose 3 texts about it later.',
+        correctLabel: 'Reasonable',
+        wrongLabel: 'The real Shelly',
+        toastWrong: 'THE PASSIVE-AGGRESSIVE "IT\'S FINE" 😬',
+      },
+    ];
 
-</div><!-- /app -->
+    const ROUND_ORDER = [4, 1, 2, 3, 5, 6, 7];
 
-<script>
-/* ══════════════════════════════════════════════ */
-/*  CONSTANTS                                     */
-/* ══════════════════════════════════════════════ */
-const ROUND_ORDER = [4, 1, 2, 3, 5, 6, 7];
-const TOTAL_ROUNDS = 7;
-const CORRECT_TOAST = ['✓ Nailed it.','✓ Correct.','✓ Spot on.','✓ Well played.','✓ Exactly.','✓ Precisely.','✓ Right answer.'];
-const WRONG_TOAST = ['✗ Wrong.','✗ Not quite.','✗ Nice try.','✗ Incorrect.','✗ Nope.','✗ Nice one, Shelly.','✗ Classic.'];
+    const SEATBELT_OBJECTS = [
+      '📱 Phone charger',
+      '🎒 Old backpack',
+      '🧃 Juice box',
+      '📖 Dog-eared book',
+      '🎧 One earbud',
+      '🧴 Half-empty lotion',
+      '🕶️ Sunglasses',
+    ];
 
-/* ══════════════════════════════════════════════ */
-/*  STATE                                         */
-/* ══════════════════════════════════════════════ */
-let state = {
-  roundIndex: 0,
-  score: 0,
-  answered: 0,
-  miniTimer: null,
-  miniTimeLeft: 30,
-  miniFound: 0,
-  seatbeltTimeout: null,
-  tremorInterval: null,
-  recoilTimeout: null,
-  seatbeltClicked: false,
-};
+    const CLUE_ITEMS = ['🔍', '🗝️', '📜', '💡', '🔐'];
+    const FILLER_ITEMS = ['📎', '☕', '🗂️', '🧷', '📌', '✏️'];
 
-/* ══════════════════════════════════════════════ */
-/*  DOM HELPERS                                   */
-/* ══════════════════════════════════════════════ */
-const $ = s => document.querySelector(s);
-const $$ = s => document.querySelectorAll(s);
+    const MINIGAME_TOASTS = [
+      'Wait… was that the exit key?',
+      'Not the answer, but nice try.',
+      'Clue energy detected.',
+      'Keep looking. The door won\'t open itself.',
+    ];
 
-/* ══════════════════════════════════════════════ */
-/*  SOUND FEEDBACK (visual toasts only)           */
-/* ══════════════════════════════════════════════ */
-let toastTimeout;
-function showToast(type) {
-  const t = $('#toast');
-  t.className = '';
-  if (type === 'correct') {
-    t.textContent = CORRECT_TOAST[Math.floor(Math.random()*CORRECT_TOAST.length)];
-    t.classList.add('toast-correct');
-  } else if (type === 'wrong') {
-    t.textContent = WRONG_TOAST[Math.floor(Math.random()*WRONG_TOAST.length)];
-    t.classList.add('toast-wrong');
-  } else if (type === 'object') {
-    t.textContent = '✨ Found one!';
-    t.classList.add('toast-object');
-  }
-  void t.offsetWidth; // reflow
-  t.classList.add('show');
-  clearTimeout(toastTimeout);
-  toastTimeout = setTimeout(() => t.classList.remove('show'), 1800);
-}
+    const Game = {
+      score: 0,
+      currentRoundIndex: 0,
+      answered: [],
+      seatbeltShown: false,
+      minigameDone: false,
 
-/* ══════════════════════════════════════════════ */
-/*  SCREEN MANAGEMENT                             */
-/* ══════════════════════════════════════════════ */
-function showScreen(id) {
-  $$('.screen').forEach(s => s.classList.remove('active'));
-  const el = document.getElementById(id);
-  if (el) el.classList.add('active');
-}
+      init() {
+        this.buildProgressDots();
+        this.buildRoundScreens();
+        this.renderDots();
+      },
 
-/* ══════════════════════════════════════════════ */
-/*  PROGRESS DOTS                                 */
-/* ══════════════════════════════════════════════ */
-function updateDots() {
-  $$('.dot').forEach(d => {
-    const r = parseInt(d.dataset.r);
-    const idx = ROUND_ORDER.indexOf(r);
-    d.classList.remove('active','done','wrong-dot');
-    if (idx < state.roundIndex) {
-      d.classList.add('done');
-    } else if (idx === state.roundIndex) {
-      d.classList.add('active');
-    }
-  });
-}
+      buildProgressDots() {
+        const container = document.getElementById('progressDots');
+        const total = 7 + 1; // 7 rounds + minigame
+        container.innerHTML = '';
+        for (let i = 0; i < total; i++) {
+          const dot = document.createElement('div');
+          dot.className = 'dot';
+          dot.dataset.index = i;
+          container.appendChild(dot);
+        }
+      },
 
-/* ══════════════════════════════════════════════ */
-/*  START GAME                                    */
-/* ══════════════════════════════════════════════ */
-function startGame() {
-  state.roundIndex = 0;
-  state.score = 0;
-  state.answered = 0;
-  showRound(ROUND_ORDER[0]);
-}
+      renderDots() {
+        const dots = document.querySelectorAll('.dot');
+        dots.forEach((dot, i) => {
+          dot.classList.remove('active', 'correct', 'wrong');
+          if (i === this.currentRoundIndex) {
+            dot.classList.add('active');
+          } else if (i < this.answered.length) {
+            dot.classList.add(this.answered[i] ? 'correct' : 'wrong');
+          }
+        });
+      },
 
-function showRound(roundNum) {
-  showScreen('round-' + roundNum);
-  updateDots();
-  // Reset seatbelt state for round 4
-  if (roundNum === 4) {
-    resetSeatbelt();
-  }
-}
+      show(id) {
+        document.querySelectorAll('.screen').forEach(s => {
+          s.classList.remove('active');
+          s.style.display = 'none';
+        });
+        const screen = document.getElementById(id);
+        screen.style.display = 'flex';
+        // Force reflow for animation restart
+        void screen.offsetWidth;
+        screen.classList.add('active');
+      },
 
-/* ══════════════════════════════════════════════ */
-/*  CHOICE HANDLERS                               */
-/* ══════════════════════════════════════════════ */
-function handleChoice(round, isCorrect, btn) {
-  state.answered++;
-  const section = $('#round-' + round);
-  const btns = section.querySelectorAll('.choice-btn');
+      start() {
+        this.score = 0;
+        this.currentRoundIndex = 0;
+        this.answered = [];
+        this.seatbeltShown = false;
+        this.minigameDone = false;
+        this.show('progressDots').style.display = 'flex';
+        this.loadRound();
+      },
 
-  // Disable all buttons
-  btns.forEach(b => {
-    b.style.pointerEvents = 'none';
-    if (b === btn) {
-      b.classList.add(isCorrect ? 'chosen-correct' : 'chosen-wrong');
-    } else {
-      b.classList.add('dim');
-    }
-  });
+      loadRound() {
+        if (this.currentRoundIndex < ROUND_ORDER.length) {
+          const roundId = ROUND_ORDER[this.currentRoundIndex];
+          const round = ROUNDS.find(r => r.id === roundId);
+          this.showRound(round);
+        } else if (!this.minigameDone) {
+          this.showMinigame();
+        } else {
+          this.showFinale();
+        }
+        this.renderDots();
+      },
 
-  if (isCorrect) {
-    state.score++;
-    showToast('correct');
-  } else {
-    showToast('wrong');
-    // Round 4 special: seatbelt animation on wrong
-    if (round === 4) {
-      triggerSeatbelt();
-    }
-  }
+      showRound(round) {
+        const screen = document.getElementById('screen-round');
+        screen.querySelector('.round-badge').textContent = `round ${round.id} — ${round.theme}`;
+        screen.querySelector('h2').textContent = round.q;
+        const choices = screen.querySelectorAll('.choice-btn');
+        choices[0].innerHTML = `${round.correct}<span class="label correct-label">${round.correctLabel}</span>`;
+        choices[1].innerHTML = `${round.wrong}<span class="label wrong-label">${round.wrongLabel}</span>`;
+        choices.forEach(b => b.className = 'choice-btn');
+        screen.dataset.roundId = round.id;
+        screen.dataset.wrongToast = round.toastWrong;
+        screen.dataset.seatbelt = round.seatbelt || '';
+        this.show('screen-round');
+      },
 
-  // Advance after delay
-  setTimeout(() => {
-    state.roundIndex++;
-    if (state.roundIndex < TOTAL_ROUNDS) {
-      showRound(ROUND_ORDER[state.roundIndex]);
-    } else {
-      // All rounds done → mini-game
-      startMiniGame();
-    }
-  }, 1400);
-}
+      handleChoice(choice) {
+        const screen = document.getElementById('screen-round');
+        const roundId = parseInt(screen.dataset.roundId);
+        const round = ROUNDS.find(r => r.id === roundId);
+        const buttons = screen.querySelectorAll('.choice-btn');
 
-/* ══════════════════════════════════════════════ */
-/*  ROUND 4 — SEATBELT SYSTEM                     */
-/* ══════════════════════════════════════════════ */
-function resetSeatbelt() {
-  const s4 = $('#round-4');
-  s4.classList.remove('seatbelt-active','recoil','tremor');
-  clearTimeout(state.seatbeltTimeout);
-  clearInterval(state.tremorInterval);
-  state.seatbeltClicked = false;
-}
+        const isCorrect = choice === 'correct';
+        if (isCorrect) this.score++;
 
-function triggerSeatbelt() {
-  const s4 = $('#round-4');
+        // Visual feedback
+        const chosenBtn = buttons[choice === 'correct' ? 0 : 1];
+        chosenBtn.classList.add(isCorrect ? 'correct' : 'wrong');
+        buttons.forEach(b => {
+          if (b !== chosenBtn) b.classList.add('disabled');
+        });
 
-  // t=0: passenger recoils
-  s4.classList.add('recoil');
+        // Toast
+        if (isCorrect) {
+          this.toast('Well played. The calm is strong.', 'toast-correct');
+        } else {
+          this.toast(round.toastWrong, 'toast-wrong');
+          // Seatbelt animation for round 4
+          if (round.seatbelt && !this.seatbeltShown) {
+            this.seatbeltShown = true;
+            setTimeout(() => {
+              document.getElementById('screen-round').classList.add('shake');
+              setTimeout(() => {
+                document.getElementById('screen-round').classList.remove('shake');
+              }, 500);
+            }, 200);
+          }
+        }
 
-  // t=100ms: seatbelt appears + recoil ends
-  state.recoilTimeout = setTimeout(() => {
-    s4.classList.remove('recoil');
-    s4.classList.add('seatbelt-active');
-    // seatbelt-click sound (visual)
-    state.seatbeltClicked = true;
-  }, 100);
+        this.answered.push(isCorrect);
 
-  // t=280ms: start continuous hand tremor
-  state.seatbeltTimeout = setTimeout(() => {
-    s4.classList.add('tremor');
-  }, 280);
-}
+        // Advance after delay
+        setTimeout(() => {
+          this.currentRoundIndex++;
+          this.loadRound();
+        }, 1600);
+      },
 
-/* ══════════════════════════════════════════════ */
-/*  MINI-GAME                                     */
-/* ══════════════════════════════════════════════ */
-function startMiniGame() {
-  showScreen('mini-game');
-  $$('.dot').forEach(d => d.classList.add('done'));
-  state.miniTimeLeft = 30;
-  state.miniFound = 0;
-  updateMiniHUD();
+      showMinigame() {
+        this.show('screen-minigame');
+        this.minigameStart = Date.now();
+        this.minigameFound = 0;
+        this.minigameTotal = CLUE_ITEMS.length;
+        document.getElementById('minigameStatus').textContent = `Clues found: 0 / ${this.minigameTotal}`;
+        this.buildGameGrid();
+        this.startMinigameTimer();
+      },
 
-  // Reset found objects
-  $$('.hidden-obj').forEach(o => o.classList.remove('found'));
+      buildGameGrid() {
+        const grid = document.getElementById('gameGrid');
+        grid.innerHTML = '';
+        const totalCells = 9;
+        const cluePositions = [];
+        while (cluePositions.length < this.minigameTotal) {
+          const pos = Math.floor(Math.random() * totalCells);
+          if (!cluePositions.includes(pos)) cluePositions.push(pos);
+        }
 
-  // Click handlers for objects
-  $$('.hidden-obj').forEach(o => {
-    o.onclick = () => handleObjectFound(o);
-  });
+        for (let i = 0; i < totalCells; i++) {
+          const cell = document.createElement('div');
+          cell.className = 'game-cell';
+          if (cluePositions.includes(i)) {
+            cell.dataset.clue = 'true';
+            cell.dataset.clueItem = CLUE_ITEMS[cluePositions.indexOf(i)];
+          } else {
+            cell.textContent = FILLER_ITEMS[i % FILLER_ITEMS.length];
+          }
+          cell.addEventListener('click', () => this.handleCellClick(cell));
+          grid.appendChild(cell);
+        }
+      },
 
-  // Timer
-  clearInterval(state.miniTimer);
-  state.miniTimer = setInterval(() => {
-    state.miniTimeLeft--;
-    updateMiniHUD();
-    // Animate hourglass sand
-    const sand = $('#hourglass-sand');
-    if (sand) {
-      const h = Math.min(60, (30 - state.miniTimeLeft) * 2);
-      sand.setAttribute('height', h);
-      sand.setAttribute('y', 80 + (60 - h) / 2);
-    }
-    if (state.miniTimeLeft <= 10) {
-      $('#mini-timer').classList.add('warn');
-    }
-    if (state.miniTimeLeft <= 0) {
-      endMiniGame();
-    }
-  }, 1000);
-}
+      handleCellClick(cell) {
+        if (cell.classList.contains('found') || cell.classList.contains('reveal-item')) return;
 
-function handleObjectFound(el) {
-  if (el.classList.contains('found')) return;
-  el.classList.add('found');
-  state.miniFound++;
-  showToast('object');
-  updateMiniHUD();
-  if (state.miniFound >= 5) {
-    endMiniGame();
-  }
-}
+        if (cell.dataset.clue) {
+          cell.classList.add('found');
+          cell.textContent = cell.dataset.clueItem;
+          this.minigameFound++;
+          document.getElementById('minigameStatus').textContent = `Clues found: ${this.minigameFound} / ${this.minigameTotal}`;
 
-function updateMiniHUD() {
-  $('#mini-timer').textContent = state.miniTimeLeft;
-  $('#mini-found').textContent = state.miniFound + ' / 5';
-}
+          if (this.minigameFound >= this.minigameTotal) {
+            this.toast('Room escaped. That was close.', 'toast-correct');
+            setTimeout(() => {
+              this.minigameDone = true;
+              this.currentRoundIndex++;
+              this.loadRound();
+            }, 1200);
+          }
+        } else {
+          this.toast(MINIGAME_TOASTS[Math.floor(Math.random() * MINIGAME_TOASTS.length)], '');
+          cell.classList.add('reveal-item');
+          setTimeout(() => {
+            cell.classList.remove('reveal-item');
+          }, 600);
+        }
+      },
 
-function endMiniGame() {
-  clearInterval(state.miniTimer);
-  $$('.hidden-obj').forEach(o => o.onclick = null);
-  setTimeout(() => showFinale(), 800);
-}
+      startMinigameTimer() {
+        const bar = document.getElementById('minigameTimerBar');
+        bar.style.width = '100%';
+        bar.classList.remove('urgent');
+        const duration = 30000;
+        const start = Date.now();
 
-/* ══════════════════════════════════════════════ */
-/*  FINALE                                        */
-/* ══════════════════════════════════════════════ */
-function showFinale() {
-  showScreen('finale');
+        const tick = () => {
+          if (this.minigameDone) return;
+          const elapsed = Date.now() - start;
+          const pct = Math.max(0, 100 - (elapsed / duration * 100));
+          bar.style.width = pct + '%';
+          if (pct < 30) bar.classList.add('urgent');
+          if (pct <= 0) {
+            this.toast('Time\'s up. The room keeps you.', 'toast-wrong');
+            setTimeout(() => {
+              this.minigameDone = true;
+              this.currentRoundIndex++;
+              this.loadRound();
+            }, 1200);
+            return;
+          }
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      },
 
-  // Phase 1: joke appears
-  setTimeout(() => {
-    $('#finale-joke').classList.add('show');
-  }, 300);
+      showFinale() {
+        const correctCount = this.answered.filter(Boolean).length;
+        const total = this.answered.length;
+        const pct = Math.round((correctCount / total) * 100);
 
-  // Phase 2: sincere appears after 3.5s
-  setTimeout(() => {
-    $('#finale-sincere').classList.add('show');
-    setTimeout(() => {
-      $('#finale-photo').classList.add('show');
-    }, 400);
-  }, 3500);
+        // Phase 1: joke beat
+        const badge = document.getElementById('finaleBadge');
+        const joke = document.getElementById('finaleJoke');
+        const jokeSub = document.getElementById('finaleJokeSub');
+        const sincereWrap = document.getElementById('finaleSincereWrap');
+        const sincere = document.getElementById('finaleSincere');
+        const photo = document.getElementById('finalePhoto');
+        const sig = document.getElementById('finaleSig');
 
-  // Phase 3: signature
-  setTimeout(() => {
-    $('#finale-sign').classList.add('show');
-  }, 5000);
-}
+        // Reset
+        sincereWrap.classList.remove('show');
+        photo.classList.remove('reveal');
+        sig.classList.remove('show');
 
-/* ══════════════════════════════════════════════ */
-/*  INIT                                          */
-/* ══════════════════════════════════════════════ */
-document.addEventListener('DOMContentLoaded', () => {
-  showScreen('title-screen');
-  updateDots();
-});
-</script>
+        badge.textContent = 'the verdict';
+        joke.textContent = `You scored ${correctCount} / ${total}. That's ${pct}% calm.`;
+        jokeSub.textContent = 'Shelly could never.';
+
+        this.show('screen-finale');
+
+        // Phase 2: sincere reveal
+        setTimeout(() => {
+          sincere.textContent = `But this was never really about being calm. It's about the fact that your chaos is exactly what makes you, you. And that's worth celebrating.`;
+          sincereWrap.classList.add('show');
+        }, 3500);
+
+        // Phase 3: photo
+        setTimeout(() => {
+          photo.classList.add('reveal');
+        }, 4200);
+
+        // Phase 4: signature
+        setTimeout(() => {
+          sig.classList.add('show');
+        }, 5000);
+      },
+
+      toast(msg, cls) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = cls || '';
+        t.classList.add('show');
+        clearTimeout(this._toastTimer);
+        this._toastTimer = setTimeout(() => {
+          t.classList.remove('show');
+        }, 2400);
+      },
+    };
+
+    // Build the round screen container
+    (function buildRoundScreen() {
+      const container = document.getElementById('round-container');
+      container.innerHTML = `
+        <div class="screen" id="screen-round">
+          <div class="round-badge"></div>
+          <h2 class="title-med"></h2>
+          <div class="choices-wrap">
+            <button class="choice-btn" onclick="Game.handleChoice('correct')"></button>
+            <button class="choice-btn" onclick="Game.handleChoice('wrong')"></button>
+          </div>
+        </div>
+      `;
+    })();
+
+    Game.init();
+  </script>
 </body>
 </html>
