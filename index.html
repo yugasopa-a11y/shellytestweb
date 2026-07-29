@@ -2,9 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#F4EFE6">
-  <title>The Shelly Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>The Shelly Test — Birthday Edition</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -20,254 +19,183 @@
       --radius: 16px;
       --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
       --ease-sincere: cubic-bezier(0.25, 0.1, 0.25, 1);
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
     }
 
-    html {
-      height: 100%;
-      -webkit-text-size-adjust: 100%;
-    }
-
-    body {
-      min-height: 100dvh;
-      min-height: -webkit-fill-available;
+    html, body {
+      height: 100dvh;
+      overflow: hidden;
       background: var(--bg);
       color: var(--ink);
       font-family: 'Inter', sans-serif;
       font-weight: 400;
       -webkit-font-smoothing: antialiased;
       -webkit-tap-highlight-color: transparent;
-      overflow-x: hidden;
-      overscroll-behavior: none;
     }
 
-    /* ─── SCREEN SYSTEM ─── */
+    body { position: relative; }
+
     .screen {
-      position: fixed;
+      position: absolute;
       inset: 0;
-      display: flex;
+      display: none;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: calc(20px + var(--safe-top)) calc(20px + var(--safe-bottom));
+      padding: clamp(20px, 5vw, 48px);
       text-align: center;
       opacity: 0;
-      pointer-events: none;
-      z-index: 1;
+      transition: opacity 0.4s var(--ease-bounce);
       overflow-y: auto;
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
     }
     .screen.active {
+      display: flex;
       opacity: 1;
-      pointer-events: auto;
-      z-index: 10;
-      animation: screenIn 0.5s var(--ease-bounce) both;
-    }
-    .screen.exit {
-      animation: screenOut 0.3s ease both;
+      animation: screenIn 0.5s var(--ease-bounce) forwards;
     }
 
     @keyframes screenIn {
-      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      from { opacity: 0; transform: translateY(16px) scale(0.98); }
       to { opacity: 1; transform: translateY(0) scale(1); }
     }
-    @keyframes screenOut {
-      from { opacity: 1; transform: scale(1); }
-      to { opacity: 0; transform: scale(0.96); }
-    }
 
-    @keyframes shake {
+    @keyframes screenShake {
       0%, 100% { transform: translateX(0); }
-      15% { transform: translateX(-8px) rotate(-0.5deg); }
-      30% { transform: translateX(8px) rotate(0.5deg); }
-      45% { transform: translateX(-6px); }
-      60% { transform: translateX(6px); }
-      75% { transform: translateX(-3px); }
-      90% { transform: translateX(3px); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
     }
+    .shake { animation: screenShake 0.5s ease-in-out; }
 
-    @keyframes slideUp {
-      from { opacity: 0; transform: translateY(16px); }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.03); } }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-    @keyframes goldGlow {
-      0%, 100% { box-shadow: 0 0 0 4px rgba(232,184,75,0.3); }
-      50% { box-shadow: 0 0 0 8px rgba(232,184,75,0.15), 0 0 30px rgba(232,184,75,0.25); }
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
     }
 
-    @keyframes pop {
-      0% { transform: scale(0.5); opacity: 0; }
-      60% { transform: scale(1.08); }
-      100% { transform: scale(1); opacity: 1; }
-    }
-
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.02); }
+    @keyframes goldPulse {
+      0%, 100% { box-shadow: 0 0 20px rgba(232,184,75,0.3); }
+      50% { box-shadow: 0 0 40px rgba(232,184,75,0.6); }
     }
 
     @keyframes timerPulse {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+      50% { opacity: 0.6; }
     }
 
-    @keyframes wiggle {
-      0%, 100% { transform: rotate(0); }
-      25% { transform: rotate(-2deg); }
-      75% { transform: rotate(2deg); }
+    @keyframes pop {
+      0% { transform: scale(0); opacity: 0; }
+      60% { transform: scale(1.15); }
+      100% { transform: scale(1); opacity: 1; }
     }
 
-    /* ─── TYPOGRAPHY ─── */
     h1, h2, h3 {
       font-family: 'Space Grotesk', sans-serif;
       font-weight: 700;
-      line-height: 1.1;
-    }
-
-    .title-huge {
-      font-size: clamp(2.8rem, 10vw, 5.5rem);
-      letter-spacing: -0.04em;
-    }
-    .title-big {
-      font-size: clamp(1.8rem, 6vw, 3.2rem);
-      letter-spacing: -0.03em;
       line-height: 1.15;
     }
+
+    .title-big {
+      font-size: clamp(2.4rem, 8vw, 5rem);
+      letter-spacing: -0.03em;
+    }
     .title-med {
-      font-size: clamp(1.2rem, 4vw, 1.8rem);
+      font-size: clamp(1.6rem, 5vw, 2.8rem);
       letter-spacing: -0.02em;
+    }
+    .title-sm {
+      font-size: clamp(1.1rem, 3vw, 1.6rem);
+      letter-spacing: -0.01em;
     }
 
     .subtitle {
-      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
-      color: rgba(26,26,26,0.55);
+      font-size: clamp(0.95rem, 2.5vw, 1.15rem);
+      opacity: 0.7;
       margin-top: 12px;
-      line-height: 1.55;
-      max-width: 380px;
+      line-height: 1.5;
+      max-width: 420px;
     }
 
     .body-text {
-      font-size: clamp(0.9rem, 2.2vw, 1rem);
-      line-height: 1.65;
-      max-width: 400px;
-      color: rgba(26,26,26,0.7);
+      font-size: clamp(0.9rem, 2.2vw, 1.05rem);
+      line-height: 1.6;
+      max-width: 440px;
     }
 
-    /* ─── PROGRESS DOTS ─── */
-    .progress {
-      position: fixed;
-      top: calc(12px + var(--safe-top));
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 6px;
-      z-index: 100;
-      padding: 8px 16px;
-      background: rgba(244,239,230,0.9);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 20px;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.4s ease;
-    }
-    .progress.visible { opacity: 1; }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: rgba(26,26,26,0.12);
-      transition: all 0.4s var(--ease-bounce);
-    }
-    .dot.active { background: var(--glow); transform: scale(1.3); }
-    .dot.correct { background: var(--correct); }
-    .dot.wrong { background: var(--wrong); }
-
-    /* ─── BUTTONS ─── */
-    .btn {
+    .btn-primary {
       font-family: 'Space Grotesk', sans-serif;
       font-weight: 700;
+      font-size: clamp(1rem, 2.8vw, 1.2rem);
+      padding: 16px 40px;
       border: none;
       border-radius: var(--radius);
-      cursor: pointer;
-      touch-action: manipulation;
-      -webkit-user-select: none;
-      user-select: none;
-      transition: transform 0.2s var(--ease-bounce), box-shadow 0.2s ease, background 0.2s ease;
-    }
-    .btn:active { transform: scale(0.96) !important; }
-
-    .btn-start {
-      font-size: clamp(1.1rem, 3vw, 1.3rem);
-      padding: 18px 56px;
       background: var(--ink);
       color: var(--bg);
-      min-height: 58px;
-      margin-top: 36px;
+      cursor: pointer;
+      transition: transform 0.2s var(--ease-bounce), box-shadow 0.2s ease;
+      min-height: 56px;
+      min-width: 200px;
+      touch-action: manipulation;
     }
-    .btn-start:hover { transform: scale(1.04); box-shadow: 0 6px 24px rgba(0,0,0,0.18); }
+    .btn-primary:hover { transform: scale(1.04); box-shadow: 0 4px 16px rgba(0,0,0,0.15); }
+    .btn-primary:active { transform: scale(0.97); }
 
-    .btn-choice {
+    .choice-btn {
       font-family: 'Inter', sans-serif;
       font-weight: 500;
-      font-size: clamp(0.95rem, 2.5vw, 1.05rem);
+      font-size: clamp(0.95rem, 2.4vw, 1.1rem);
+      padding: 18px 28px;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      transition: transform 0.2s var(--ease-bounce), background 0.2s ease, border-color 0.2s ease;
       width: 100%;
       max-width: 480px;
-      padding: 20px 24px;
-      border: 2px solid rgba(26,26,26,0.12);
-      border-radius: var(--radius);
-      background: rgba(255,255,255,0.6);
-      color: var(--ink);
       text-align: left;
-      line-height: 1.5;
-      min-height: 64px;
+      line-height: 1.45;
+      touch-action: manipulation;
+      min-height: 60px;
       position: relative;
       overflow: hidden;
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
     }
-    .btn-choice:hover {
-      border-color: rgba(26,26,26,0.25);
-      background: rgba(255,255,255,0.85);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(0,0,0,0.06);
-    }
+    .choice-btn:hover { background: rgba(26,26,26,0.05); transform: translateY(-2px); }
+    .choice-btn:active { transform: scale(0.98); }
+    .choice-btn + .choice-btn { margin-top: 12px; }
 
-    .btn-choice.correct {
+    .choice-btn.correct {
       border-color: var(--correct);
-      background: rgba(58,125,99,0.1);
-      animation: pulse 0.5s var(--ease-bounce);
+      background: rgba(58,125,99,0.08);
+      animation: pulse 0.6s var(--ease-bounce);
     }
-    .btn-choice.wrong {
+    .choice-btn.wrong {
       border-color: var(--wrong);
-      background: rgba(193,68,61,0.1);
-      animation: pulse 0.5s var(--ease-bounce);
+      background: rgba(193,68,61,0.08);
+      animation: pulse 0.6s var(--ease-bounce);
     }
-    .btn-choice.locked { pointer-events: none; }
-
-    .choice-label {
+    .choice-btn.disabled {
+      pointer-events: none;
+      opacity: 0.5;
+    }
+    .choice-btn .label {
       display: block;
-      margin-top: 8px;
-      font-size: 0.7rem;
+      font-size: 0.75em;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      opacity: 0;
-      transform: translateY(4px);
-      transition: all 0.3s var(--ease-bounce);
+      letter-spacing: 0.06em;
+      margin-top: 6px;
     }
-    .choice-label.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .choice-label.correct-lbl { color: var(--correct); }
-    .choice-label.wrong-lbl { color: var(--wrong); }
+    .choice-btn .label.correct-label { color: var(--correct); }
+    .choice-btn .label.wrong-label { color: var(--wrong); }
 
     .choices-wrap {
       display: flex;
@@ -278,617 +206,589 @@
       margin-top: 28px;
     }
 
-    /* ─── ROUND LABEL ─── */
-    .round-label {
+    .round-badge {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
       font-family: 'Space Grotesk', sans-serif;
       font-weight: 700;
-      font-size: 0.7rem;
+      font-size: clamp(0.75rem, 2vw, 0.85rem);
       text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: rgba(26,26,26,0.4);
-      margin-bottom: 20px;
-    }
-    .round-label .emoji {
-      font-size: 1rem;
-      animation: wiggle 2s ease infinite;
+      letter-spacing: 0.1em;
+      opacity: 0.5;
+      margin-bottom: 16px;
     }
 
-    /* ─── QUESTION ─── */
-    .question {
-      max-width: 500px;
-      line-height: 1.25;
+    .progress-dots {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 8px;
+      z-index: 100;
+      padding: 8px 16px;
+      background: rgba(244,239,230,0.85);
+      backdrop-filter: blur(8px);
+      border-radius: 20px;
     }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(26,26,26,0.15);
+      transition: background 0.3s ease, transform 0.3s var(--ease-bounce);
+    }
+    .dot.active { background: var(--glow); transform: scale(1.2); }
+    .dot.correct { background: var(--correct); }
+    .dot.wrong { background: var(--wrong); }
 
-    /* ─── TOAST ─── */
     #toast {
       position: fixed;
-      bottom: calc(24px + var(--safe-bottom));
+      bottom: 24px;
       left: 50%;
-      transform: translateX(-50%) translateY(140px);
+      transform: translateX(-50%) translateY(120px);
       font-family: 'Inter', sans-serif;
       font-weight: 500;
-      font-size: clamp(0.85rem, 2.2vw, 0.95rem);
-      padding: 14px 22px;
-      border-radius: 12px;
+      font-size: clamp(0.85rem, 2.2vw, 1rem);
+      padding: 14px 24px;
+      border-radius: var(--radius);
       background: var(--ink);
       color: var(--bg);
-      z-index: 300;
+      z-index: 200;
       white-space: nowrap;
-      pointer-events: none;
-      opacity: 0;
       transition: transform 0.4s var(--ease-bounce), opacity 0.3s ease;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
-      max-width: 90vw;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      opacity: 0;
+      pointer-events: none;
     }
-    #toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
+    #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
     #toast.toast-correct { background: var(--correct); }
     #toast.toast-wrong { background: var(--wrong); }
 
-    /* ─── MINI GAME ─── */
-    .timer-wrap {
+    .photo-frame {
+      width: clamp(160px, 40vw, 240px);
+      height: clamp(160px, 40vw, 240px);
+      border-radius: 50%;
+      border: 4px solid var(--glow);
+      overflow: hidden;
+      margin: 0 auto;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: opacity 0.8s var(--ease-sincere), transform 0.8s var(--ease-sincere);
+    }
+    .photo-frame.reveal { opacity: 1; transform: scale(1); }
+    .photo-frame img {
       width: 100%;
-      max-width: 400px;
-      height: 6px;
-      background: rgba(26,26,26,0.08);
-      border-radius: 3px;
-      margin: 20px auto 0;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .timer-bar-wrap {
+      width: 100%;
+      max-width: 480px;
+      height: 8px;
+      background: rgba(26,26,26,0.1);
+      border-radius: 4px;
+      margin: 16px auto;
       overflow: hidden;
     }
-    .timer-fill {
+    .timer-bar {
       height: 100%;
       background: var(--glow);
-      border-radius: 3px;
+      border-radius: 4px;
       transition: width 1s linear;
-      width: 100%;
     }
-    .timer-fill.urgent {
-      background: var(--wrong);
-      animation: timerPulse 0.6s ease infinite;
-    }
+    .timer-bar.urgent { background: var(--wrong); animation: timerPulse 0.5s ease infinite; }
 
     .game-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
+      gap: 12px;
       width: 100%;
-      max-width: 320px;
-      margin: 24px auto;
+      max-width: 360px;
+      margin: 20px auto;
     }
-
-    .cell {
+    .game-cell {
       aspect-ratio: 1;
-      border-radius: 14px;
-      border: 2px solid rgba(26,26,26,0.08);
+      border-radius: var(--radius);
+      border: 2px solid rgba(26,26,26,0.12);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: clamp(1.4rem, 5vw, 2rem);
+      font-size: clamp(1.5rem, 5vw, 2.2rem);
       cursor: pointer;
       transition: transform 0.15s var(--ease-bounce), border-color 0.2s ease, background 0.2s ease;
       touch-action: manipulation;
       background: rgba(255,255,255,0.5);
-      -webkit-user-select: none;
       user-select: none;
     }
-    .cell:active { transform: scale(0.9); }
-    .cell.found {
+    .game-cell:active { transform: scale(0.92); }
+    .game-cell.found {
       border-color: var(--correct);
-      background: rgba(58,125,99,0.08);
+      background: rgba(58,125,99,0.1);
       pointer-events: none;
-      animation: pop 0.4s var(--ease-bounce);
     }
-    .cell.peek {
+    .game-cell.reveal-item {
       border-color: var(--glow);
       background: rgba(232,184,75,0.1);
+      animation: pop 0.4s var(--ease-bounce);
     }
 
-    .game-status {
-      font-family: 'Space Grotesk', sans-serif;
-      font-weight: 700;
-      font-size: 0.85rem;
-      color: rgba(26,26,26,0.5);
-      margin-top: 4px;
+    .finale-screen {
+      gap: 8px;
     }
-
-    /* ─── FINALE ─── */
-    .finale .sincere {
+    .finale-screen .sincere-msg {
       max-height: 0;
       overflow: hidden;
+      transition: max-height 1.2s var(--ease-sincere), opacity 0.8s ease;
       opacity: 0;
-      transition: max-height 1.2s var(--ease-sincere), opacity 0.8s ease 0.2s;
     }
-    .finale .sincere.show { max-height: 200px; opacity: 1; }
-
-    .photo-ring {
-      width: clamp(150px, 40vw, 220px);
-      height: clamp(150px, 40vw, 220px);
-      border-radius: 50%;
-      border: 3px solid var(--glow);
-      padding: 6px;
-      margin: 0 auto;
-      opacity: 0;
-      transform: scale(0.85);
-      transition: all 1s var(--ease-sincere);
-    }
-    .photo-ring.show {
+    .finale-screen .sincere-msg.show {
+      max-height: 300px;
       opacity: 1;
-      transform: scale(1);
-      animation: goldGlow 3s ease infinite;
     }
-    .photo-ring img {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      object-fit: cover;
-    }
-
-    .signature {
+    .finale-screen .sig {
       opacity: 0;
-      transition: opacity 1.2s ease;
-      color: rgba(26,26,26,0.4);
-      font-size: clamp(0.8rem, 2vw, 0.95rem);
-      line-height: 1.6;
+      transition: opacity 1s ease;
     }
-    .signature.show { opacity: 1; }
-
-    /* ─── INTRO SPECIFICS ─── */
-    .intro-tag {
-      font-size: clamp(0.7rem, 1.8vw, 0.8rem);
-      text-transform: uppercase;
-      letter-spacing: 0.15em;
-      color: rgba(26,26,26,0.35);
-      font-weight: 500;
-      margin-bottom: 16px;
-    }
-
-    .intro-divider {
-      width: 40px;
-      height: 3px;
-      background: var(--glow);
-      border-radius: 2px;
-      margin: 20px auto 0;
-    }
-
-    /* ─── MOBILE TWEAKS ─── */
-    @media (max-width: 400px) {
-      .btn-choice { padding: 16px 18px; font-size: 0.9rem; }
-      .choices-wrap { gap: 10px; margin-top: 22px; }
-      .progress { gap: 5px; padding: 6px 12px; }
-      .game-grid { gap: 8px; max-width: 280px; }
-    }
-
-    @media (min-width: 768px) {
-      .screen { padding: 48px; }
-      .btn-choice { font-size: 1.05rem; padding: 22px 28px; }
-    }
+    .finale-screen .sig.show { opacity: 1; }
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.15s !important;
+        transition-duration: 0.01ms !important;
       }
+    }
+
+    @media (max-width: 480px) {
+      .choice-btn { padding: 16px 20px; }
+      .choices-wrap { gap: 10px; margin-top: 20px; }
+      .progress-dots { gap: 6px; padding: 6px 12px; }
+      .dot { width: 8px; height: 8px; }
+      .game-grid { gap: 8px; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Progress -->
-  <div class="progress" id="progress"></div>
+  <!-- Progress Dots -->
+  <div class="progress-dots" id="progressDots"></div>
 
   <!-- Toast -->
   <div id="toast"></div>
 
-  <!-- ═══════ INTRO ═══════ -->
-  <div class="screen active" id="intro">
-    <p class="intro-tag">a gift from yug &amp; arham</p>
-    <h1 class="title-huge">The Shelly<br>Test</h1>
+  <!-- INTRO SCREEN -->
+  <div class="screen active" id="screen-intro">
+    <div class="round-badge">a gift from yug &amp; arham</div>
+    <h1 class="title-big">The Shelly Test</h1>
     <p class="subtitle">Seven questions. One rule.<br>You can never pretend to be chill.</p>
-    <div class="intro-divider"></div>
-    <button class="btn btn-start" onclick="Q.start()">Begin the test</button>
+    <button class="btn-primary" onclick="Game.start()" style="margin-top: 32px;">Begin</button>
   </div>
 
-  <!-- ═══════ QUIZ ROUND ═══════ -->
-  <div class="screen" id="round">
-    <div class="round-label" id="roundLabel"><span class="emoji"></span><span class="text"></span></div>
-    <h2 class="title-big question" id="roundQ"></h2>
-    <div class="choices-wrap" id="roundChoices">
-      <button class="btn btn-choice" onclick="Q.answer(0)">
-        <span class="text"></span>
-        <span class="choice-label"></span>
-      </button>
-      <button class="btn btn-choice" onclick="Q.answer(1)">
-        <span class="text"></span>
-        <span class="choice-label"></span>
-      </button>
-    </div>
-  </div>
+  <!-- ROUND SCREENS (dynamically filled) -->
+  <div id="round-container"></div>
 
-  <!-- ═══════ MINI GAME ═══════ -->
-  <div class="screen" id="minigame">
-    <div class="round-label"><span class="emoji">🔦</span><span class="text">escape room</span></div>
-    <h2 class="title-big">Escape the Interrogation Room</h2>
-    <p class="subtitle">Find all 5 hidden clues. You have 30 seconds.</p>
-    <div class="timer-wrap"><div class="timer-fill" id="timerFill"></div></div>
-    <p class="game-status" id="gameStatus">Clues found: 0 / 5</p>
+  <!-- MINI-GAME SCREEN -->
+  <div class="screen" id="screen-minigame">
+    <div class="round-badge">round 8 &mdash; escape room</div>
+    <h2 class="title-med">Escape the Interrogation Room</h2>
+    <p class="subtitle">Find all 5 hidden clues before time runs out.</p>
+    <div class="timer-bar-wrap"><div class="timer-bar" id="minigameTimerBar"></div></div>
+    <p class="body-text" id="minigameStatus" style="margin: 12px 0;">Clues found: 0 / 5</p>
     <div class="game-grid" id="gameGrid"></div>
   </div>
 
-  <!-- ═══════ FINALE ═══════ -->
-  <div class="screen finale" id="finale">
-    <div class="round-label"><span class="emoji">🎂</span><span class="text" id="finaleTag"></span></div>
-    <h2 class="title-big" id="finaleJoke"></h2>
-    <p class="body-text" id="finaleJokeSub" style="margin-top: 12px;"></p>
-    <div class="sincere" id="sincereWrap">
-      <p class="body-text" id="sincereMsg" style="margin-top: 20px;"></p>
+  <!-- FINALE SCREEN -->
+  <div class="screen finale-screen" id="screen-finale">
+    <div class="round-badge" id="finaleBadge"></div>
+    <h2 class="title-med" id="finaleJoke"></h2>
+    <p class="body-text" id="finaleJokeSub"></p>
+    <div class="sincere-msg" id="finaleSincereWrap">
+      <p class="body-text" id="finaleSincere" style="margin-top: 16px;"></p>
     </div>
-    <div class="photo-ring" id="photoRing">
+    <div class="photo-frame" id="finalePhoto">
       <img src="shelly-photo.jpeg" alt="Shelly">
     </div>
-    <p class="signature" id="sigLine">
+    <p class="sig" id="finaleSig" style="margin-top: 24px; font-size: clamp(0.85rem, 2vw, 1rem); opacity: 0.6;">
       happy birthday, shelly.<br>never change.
     </p>
   </div>
 
-<script>
-const EMOJIS = { coffee: '☕', uber: '🚗', plans: '🌙', car: '💨', phone: '📱', wifi: '📡', restaurant: '🍽️' };
+  <script>
+    const ROUNDS = [
+      {
+        id: 1, theme: 'coffee',
+        q: 'You spill coffee on your laptop. What\'s your first move?',
+        correct: 'Stay calm. Save the files. Rice can wait.',
+        wrong: 'Scream, blame the mug, and take 14 photos for Instagram.',
+        correctLabel: 'Reasonable',
+        wrongLabel: 'The real Shelly',
+        toastWrong: 'THE MUG GETS BLAMED 😤',
+      },
+      {
+        id: 2, theme: 'uber',
+        q: 'Your Uber is 3 minutes away. What do you do?',
+        correct: 'Put on shoes. Walk to the door. Simple.',
+        wrong: 'Panic. Check the map 11 times. Text "omw" while still in pajamas.',
+        correctLabel: 'Reasonable',
+        wrongLabel: 'The real Shelly',
+        toastWrong: 'YOU TEXTED "I\'M HERE" FROM THE COUCH 😭',
+      },
+      {
+        id: 3, theme: 'plans',
+        q: 'Friday night plans fall through. You...',
+        correct: 'Stay in. Read a book. Early night.',
+        wrong: 'Overanalyze. Text everyone. End up binge-watching at 2 AM.',
+        correctLabel: 'Reasonable',
+        wrongLabel: 'The real Shelly',
+        toastWrong: 'THE OVERANALYZING IS REAL 🫠',
+      },
+      {
+        id: 4, theme: 'car',
+        q: 'Someone is tailgating you aggressively.',
+        correct: 'Move over when safe. Let them pass. Breathe.',
+        wrong: 'Brake-check them, make eye contact in the mirror, mutter threats.',
+        correctLabel: 'Reasonable',
+        wrongLabel: 'The real Shelly',
+        toastWrong: 'THE BRAKE CHECK IS INSTINCTIVE 🚗',
+        seatbelt: true,
+      },
+      {
+        id: 5, theme: 'phone',
+        q: 'Your phone dies at 7%. What do you do?',
+        correct: 'Find a charger or turn on low power mode.',
+        wrong: 'Mental breakdown. Frantically text everyone "MY PHONE MIGHT DIE."',
+        correctLabel: 'Reasonable',
+        wrongLabel: 'The real Shelly',
+        toastWrong: 'THE PREEMPTIVE GOODBYE TEXT 😂',
+      },
+      {
+        id: 6, theme: 'wifi',
+        q: 'WiFi goes down for 10 minutes. Your reaction?',
+        correct: 'Wait. Maybe read a book. No big deal.',
+        wrong: 'Check router, restart phone, reboot laptop, question all life choices.',
+        correctLabel: 'Reasonable',
+        wrongLabel: 'The real Shelly',
+        toastWrong: 'THE FULL IT DEPARTMENT ACTIVATED 💀',
+      },
+      {
+        id: 7, theme: 'restaurant',
+        q: 'Your food order comes wrong. What do you do?',
+        correct: 'Politely tell the server. Get it fixed. Move on.',
+        wrong: 'Say it\'s fine. Eat it. Compose 3 texts about it later.',
+        correctLabel: 'Reasonable',
+        wrongLabel: 'The real Shelly',
+        toastWrong: 'THE PASSIVE-AGGRESSIVE "IT\'S FINE" 😬',
+      },
+    ];
 
-const ROUNDS = [
-  {
-    id: 1, theme: 'coffee',
-    q: 'You spill coffee on your laptop. What\'s your first move?',
-    a: [
-      { text: 'Stay calm. Save the files. Rice can wait.', type: 'correct' },
-      { text: 'Scream, blame the mug, and take 14 photos for Instagram.', type: 'wrong' },
-    ],
-    toastWrong: 'THE MUG GETS BLAMED 😤',
-  },
-  {
-    id: 2, theme: 'uber',
-    q: 'Your Uber is 3 minutes away. What do you do?',
-    a: [
-      { text: 'Put on shoes. Walk to the door. Simple.', type: 'correct' },
-      { text: 'Panic. Check the map 11 times. Text "omw" from the couch.', type: 'wrong' },
-    ],
-    toastWrong: 'YOU TEXTED "I\'M HERE" STILL IN PAJAMAS 😭',
-  },
-  {
-    id: 3, theme: 'plans',
-    q: 'Friday night plans fall through. You...',
-    a: [
-      { text: 'Stay in. Read a book. Early night.', type: 'correct' },
-      { text: 'Overanalyze. Text everyone. Binge-watch at 2 AM.', type: 'wrong' },
-    ],
-    toastWrong: 'THE OVERANALYZING IS SO REAL 🫠',
-  },
-  {
-    id: 4, theme: 'car',
-    q: 'Someone is tailgating you aggressively.',
-    a: [
-      { text: 'Move over when safe. Let them pass. Breathe.', type: 'correct' },
-      { text: 'Brake-check them, make eye contact in the mirror, mutter threats.', type: 'wrong' },
-    ],
-    toastWrong: 'THE BRAKE CHECK IS INSTINCTIVE 🚗',
-    shake: true,
-  },
-  {
-    id: 5, theme: 'phone',
-    q: 'Your phone dies at 7%. What do you do?',
-    a: [
-      { text: 'Find a charger or turn on low power mode.', type: 'correct' },
-      { text: 'Mental breakdown. Frantically text "MY PHONE MIGHT DIE."', type: 'wrong' },
-    ],
-    toastWrong: 'THE PREEMPTIVE GOODBYE TEXT 💀',
-  },
-  {
-    id: 6, theme: 'wifi',
-    q: 'WiFi goes down for 10 minutes. Your reaction?',
-    a: [
-      { text: 'Wait. Maybe read a book. No big deal.', type: 'correct' },
-      { text: 'Check router, restart phone, reboot laptop, question all life choices.', type: 'wrong' },
-    ],
-    toastWrong: 'THE FULL IT DEPARTMENT ACTIVATED 🔧',
-  },
-  {
-    id: 7, theme: 'restaurant',
-    q: 'Your food order comes wrong. What do you do?',
-    a: [
-      { text: 'Politely tell the server. Get it fixed. Move on.', type: 'correct' },
-      { text: 'Say it\'s fine. Eat it. Compose 3 texts about it later.', type: 'wrong' },
-    ],
-    toastWrong: 'THE PASSIVE-AGGRESSIVE "IT\'S FINE" 😬',
-  },
-];
+    const ROUND_ORDER = [4, 1, 2, 3, 5, 6, 7];
 
-const ROUND_ORDER = [4, 1, 2, 3, 5, 6, 7];
+    const SEATBELT_OBJECTS = [
+      '📱 Phone charger',
+      '🎒 Old backpack',
+      '🧃 Juice box',
+      '📖 Dog-eared book',
+      '🎧 One earbud',
+      '🧴 Half-empty lotion',
+      '🕶️ Sunglasses',
+    ];
 
-const CLUE_EMOJIS = ['🔍', '🗝️', '📜', '💡', '🔐'];
-const FILLER_EMOJIS = ['📎', '☕', '🗂️', '🧷', '📌', '✏️', '🗑️', '📏', '🧲'];
+    const CLUE_ITEMS = ['🔍', '🗝️', '📜', '💡', '🔐'];
+    const FILLER_ITEMS = ['📎', '☕', '🗂️', '🧷', '📌', '✏️'];
 
-const Q = {
-  score: 0,
-  roundIdx: 0,
-  results: [],
-  shakePlayed: false,
-  gameDone: false,
+    const MINIGAME_TOASTS = [
+      'Wait… was that the exit key?',
+      'Not the answer, but nice try.',
+      'Clue energy detected.',
+      'Keep looking. The door won\'t open itself.',
+    ];
 
-  /* ─── NAVIGATION ─── */
-  show(id) {
-    const target = document.getElementById(id);
-    const current = document.querySelector('.screen.active');
-    if (current && current !== target) {
-      current.classList.remove('active');
-      current.classList.add('exit');
-      current.addEventListener('animationend', () => {
-        current.classList.remove('exit');
-      }, { once: true });
-    }
-    target.classList.add('active');
-  },
+    const Game = {
+      score: 0,
+      currentRoundIndex: 0,
+      answered: [],
+      seatbeltShown: false,
+      minigameDone: false,
 
-  showProgress(on) {
-    document.getElementById('progress').classList.toggle('visible', on);
-  },
+      init() {
+        this.buildProgressDots();
+        this.buildRoundScreens();
+        this.renderDots();
+      },
 
-  /* ─── INIT ─── */
-  init() {
-    this.buildDots();
-    this.show('intro');
-  },
+      buildProgressDots() {
+        const container = document.getElementById('progressDots');
+        const total = 7 + 1; // 7 rounds + minigame
+        container.innerHTML = '';
+        for (let i = 0; i < total; i++) {
+          const dot = document.createElement('div');
+          dot.className = 'dot';
+          dot.dataset.index = i;
+          container.appendChild(dot);
+        }
+      },
 
-  /* ─── START ─── */
-  start() {
-    this.score = 0;
-    this.roundIdx = 0;
-    this.results = [];
-    this.shakePlayed = false;
-    this.gameDone = false;
-    this.buildDots();
-    this.showProgress(true);
-    this.renderDots();
-    this.loadRound();
-  },
+      renderDots() {
+        const dots = document.querySelectorAll('.dot');
+        dots.forEach((dot, i) => {
+          dot.classList.remove('active', 'correct', 'wrong');
+          if (i === this.currentRoundIndex) {
+            dot.classList.add('active');
+          } else if (i < this.answered.length) {
+            dot.classList.add(this.answered[i] ? 'correct' : 'wrong');
+          }
+        });
+      },
 
-  /* ─── DOTS ─── */
-  buildDots() {
-    const el = document.getElementById('progress');
-    el.innerHTML = '';
-    for (let i = 0; i < 8; i++) {
-      const d = document.createElement('div');
-      d.className = 'dot';
-      el.appendChild(d);
-    }
-  },
+      show(id) {
+        document.querySelectorAll('.screen').forEach(s => {
+          s.classList.remove('active');
+          s.style.display = 'none';
+        });
+        const screen = document.getElementById(id);
+        screen.style.display = 'flex';
+        // Force reflow for animation restart
+        void screen.offsetWidth;
+        screen.classList.add('active');
+      },
 
-  renderDots() {
-    const dots = document.querySelectorAll('.dot');
-    dots.forEach((d, i) => {
-      d.classList.remove('active', 'correct', 'wrong');
-      if (i === this.roundIdx) d.classList.add('active');
-      else if (i < this.results.length) d.classList.add(this.results[i] ? 'correct' : 'wrong');
-    });
-  },
+      start() {
+        this.score = 0;
+        this.currentRoundIndex = 0;
+        this.answered = [];
+        this.seatbeltShown = false;
+        this.minigameDone = false;
+        this.show('progressDots').style.display = 'flex';
+        this.loadRound();
+      },
 
-  /* ─── LOAD ROUND ─── */
-  loadRound() {
-    this.renderDots();
-    if (this.roundIdx < ROUND_ORDER.length) {
-      const id = ROUND_ORDER[this.roundIdx];
-      const r = ROUNDS.find(r => r.id === id);
-      this.renderRound(r);
-      this.show('round');
-    } else if (!this.gameDone) {
-      this.startGame();
-    } else {
-      this.renderFinale();
-      this.show('finale');
-    }
-  },
+      loadRound() {
+        if (this.currentRoundIndex < ROUND_ORDER.length) {
+          const roundId = ROUND_ORDER[this.currentRoundIndex];
+          const round = ROUNDS.find(r => r.id === roundId);
+          this.showRound(round);
+        } else if (!this.minigameDone) {
+          this.showMinigame();
+        } else {
+          this.showFinale();
+        }
+        this.renderDots();
+      },
 
-  /* ─── RENDER ROUND ─── */
-  renderRound(r) {
-    const label = document.getElementById('roundLabel');
-    label.querySelector('.emoji').textContent = EMOJIS[r.theme] || '❓';
-    label.querySelector('.text').textContent = `round ${r.id}`;
+      showRound(round) {
+        const screen = document.getElementById('screen-round');
+        screen.querySelector('.round-badge').textContent = `round ${round.id} — ${round.theme}`;
+        screen.querySelector('h2').textContent = round.q;
+        const choices = screen.querySelectorAll('.choice-btn');
+        choices[0].innerHTML = `${round.correct}<span class="label correct-label">${round.correctLabel}</span>`;
+        choices[1].innerHTML = `${round.wrong}<span class="label wrong-label">${round.wrongLabel}</span>`;
+        choices.forEach(b => b.className = 'choice-btn');
+        screen.dataset.roundId = round.id;
+        screen.dataset.wrongToast = round.toastWrong;
+        screen.dataset.seatbelt = round.seatbelt || '';
+        this.show('screen-round');
+      },
 
-    document.getElementById('roundQ').textContent = r.q;
+      handleChoice(choice) {
+        const screen = document.getElementById('screen-round');
+        const roundId = parseInt(screen.dataset.roundId);
+        const round = ROUNDS.find(r => r.id === roundId);
+        const buttons = screen.querySelectorAll('.choice-btn');
 
-    const btns = document.querySelectorAll('#roundChoices .btn-choice');
-    r.a.forEach((a, i) => {
-      const btn = btns[i];
-      btn.querySelector('.text').textContent = a.text;
-      btn.className = 'btn btn-choice';
-      const lbl = btn.querySelector('.choice-label');
-      lbl.className = 'choice-label';
-      lbl.textContent = a.type === 'correct' ? '✓ Reasonable' : '✗ The real Shelly';
-      lbl.classList.add(a.type === 'correct' ? 'correct-lbl' : 'wrong-lbl');
-    });
+        const isCorrect = choice === 'correct';
+        if (isCorrect) this.score++;
 
-    document.getElementById('round').dataset.shake = r.shake ? '1' : '0';
-    document.getElementById('round').dataset.toastWrong = r.toastWrong;
-  },
+        // Visual feedback
+        const chosenBtn = buttons[choice === 'correct' ? 0 : 1];
+        chosenBtn.classList.add(isCorrect ? 'correct' : 'wrong');
+        buttons.forEach(b => {
+          if (b !== chosenBtn) b.classList.add('disabled');
+        });
 
-  /* ─── ANSWER ─── */
-  answer(idx) {
-    const r = ROUNDS.find(r => r.id === ROUND_ORDER[this.roundIdx]);
-    const btns = document.querySelectorAll('#roundChoices .btn-choice');
-    const chosen = btns[idx];
-    const other = btns[1 - idx];
-    const isCorrect = r.a[idx].type === 'correct';
+        // Toast
+        if (isCorrect) {
+          this.toast('Well played. The calm is strong.', 'toast-correct');
+        } else {
+          this.toast(round.toastWrong, 'toast-wrong');
+          // Seatbelt animation for round 4
+          if (round.seatbelt && !this.seatbeltShown) {
+            this.seatbeltShown = true;
+            setTimeout(() => {
+              document.getElementById('screen-round').classList.add('shake');
+              setTimeout(() => {
+                document.getElementById('screen-round').classList.remove('shake');
+              }, 500);
+            }, 200);
+          }
+        }
 
-    if (isCorrect) this.score++;
-    this.results.push(isCorrect);
+        this.answered.push(isCorrect);
 
-    // Lock + highlight
-    btns.forEach(b => b.classList.add('locked'));
-    chosen.classList.add(isCorrect ? 'correct' : 'wrong');
-    chosen.querySelector('.choice-label').classList.add('show');
-
-    // Toast
-    if (isCorrect) {
-      this.toast('Well played. The calm is strong.', 'toast-correct');
-    } else {
-      this.toast(r.toastWrong, 'toast-wrong');
-      // Shake for round 4
-      if (r.shake && !this.shakePlayed) {
-        this.shakePlayed = true;
+        // Advance after delay
         setTimeout(() => {
-          document.getElementById('round').style.animation = 'shake 0.5s ease';
-          document.getElementById('round').addEventListener('animationend', () => {
-            document.getElementById('round').style.animation = '';
-          }, { once: true });
-        }, 200);
-      }
-    }
-
-    // Advance
-    setTimeout(() => {
-      this.roundIdx++;
-      this.loadRound();
-    }, 1500);
-  },
-
-  /* ─── MINI GAME ─── */
-  startGame() {
-    this.show('minigame');
-    this.gameFound = 0;
-    this.gameTotal = CLUE_EMOJIS.length;
-    this.gameActive = true;
-    document.getElementById('gameStatus').textContent = `Clues found: 0 / ${this.gameTotal}`;
-    this.buildGrid();
-    this.startTimer();
-  },
-
-  buildGrid() {
-    const grid = document.getElementById('gameGrid');
-    grid.innerHTML = '';
-    const positions = new Set();
-    while (positions.size < this.gameTotal) {
-      positions.add(Math.floor(Math.random() * 9));
-    }
-    const clueArr = [...CLUE_EMOJIS];
-    let clueIdx = 0;
-
-    for (let i = 0; i < 9; i++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      if (positions.has(i)) {
-        cell.dataset.clue = clueArr[clueIdx++];
-        cell.dataset.isClue = '1';
-      } else {
-        cell.textContent = FILLER_EMOJIS[i % FILLER_EMOJIS.length];
-      }
-      cell.addEventListener('click', () => this.tapCell(cell));
-      grid.appendChild(cell);
-    }
-  },
-
-  tapCell(cell) {
-    if (!this.gameActive || cell.classList.contains('found')) return;
-
-    if (cell.dataset.isClue) {
-      cell.classList.add('found');
-      cell.textContent = cell.dataset.clue;
-      this.gameFound++;
-      document.getElementById('gameStatus').textContent = `Clues found: ${this.gameFound} / ${this.gameTotal}`;
-      if (this.gameFound >= this.gameTotal) {
-        this.gameActive = false;
-        this.toast('Room escaped. That was close.', 'toast-correct');
-        setTimeout(() => {
-          this.gameDone = true;
-          this.roundIdx++;
+          this.currentRoundIndex++;
           this.loadRound();
-        }, 1000);
-      }
-    } else {
-      cell.classList.add('peek');
-      this.toast('Not here. Keep looking.', '');
-      setTimeout(() => cell.classList.remove('peek'), 500);
-    }
-  },
+        }, 1600);
+      },
 
-  startTimer() {
-    const bar = document.getElementById('timerFill');
-    bar.style.width = '100%';
-    bar.classList.remove('urgent');
-    const duration = 30000;
-    const start = Date.now();
+      showMinigame() {
+        this.show('screen-minigame');
+        this.minigameStart = Date.now();
+        this.minigameFound = 0;
+        this.minigameTotal = CLUE_ITEMS.length;
+        document.getElementById('minigameStatus').textContent = `Clues found: 0 / ${this.minigameTotal}`;
+        this.buildGameGrid();
+        this.startMinigameTimer();
+      },
 
-    const tick = () => {
-      if (!this.gameActive) return;
-      const pct = Math.max(0, 100 - ((Date.now() - start) / duration * 100));
-      bar.style.width = pct + '%';
-      if (pct < 25) bar.classList.add('urgent');
-      if (pct <= 0) {
-        this.gameActive = false;
-        this.toast('Time\'s up. The room keeps you.', 'toast-wrong');
+      buildGameGrid() {
+        const grid = document.getElementById('gameGrid');
+        grid.innerHTML = '';
+        const totalCells = 9;
+        const cluePositions = [];
+        while (cluePositions.length < this.minigameTotal) {
+          const pos = Math.floor(Math.random() * totalCells);
+          if (!cluePositions.includes(pos)) cluePositions.push(pos);
+        }
+
+        for (let i = 0; i < totalCells; i++) {
+          const cell = document.createElement('div');
+          cell.className = 'game-cell';
+          if (cluePositions.includes(i)) {
+            cell.dataset.clue = 'true';
+            cell.dataset.clueItem = CLUE_ITEMS[cluePositions.indexOf(i)];
+          } else {
+            cell.textContent = FILLER_ITEMS[i % FILLER_ITEMS.length];
+          }
+          cell.addEventListener('click', () => this.handleCellClick(cell));
+          grid.appendChild(cell);
+        }
+      },
+
+      handleCellClick(cell) {
+        if (cell.classList.contains('found') || cell.classList.contains('reveal-item')) return;
+
+        if (cell.dataset.clue) {
+          cell.classList.add('found');
+          cell.textContent = cell.dataset.clueItem;
+          this.minigameFound++;
+          document.getElementById('minigameStatus').textContent = `Clues found: ${this.minigameFound} / ${this.minigameTotal}`;
+
+          if (this.minigameFound >= this.minigameTotal) {
+            this.toast('Room escaped. That was close.', 'toast-correct');
+            setTimeout(() => {
+              this.minigameDone = true;
+              this.currentRoundIndex++;
+              this.loadRound();
+            }, 1200);
+          }
+        } else {
+          this.toast(MINIGAME_TOASTS[Math.floor(Math.random() * MINIGAME_TOASTS.length)], '');
+          cell.classList.add('reveal-item');
+          setTimeout(() => {
+            cell.classList.remove('reveal-item');
+          }, 600);
+        }
+      },
+
+      startMinigameTimer() {
+        const bar = document.getElementById('minigameTimerBar');
+        bar.style.width = '100%';
+        bar.classList.remove('urgent');
+        const duration = 30000;
+        const start = Date.now();
+
+        const tick = () => {
+          if (this.minigameDone) return;
+          const elapsed = Date.now() - start;
+          const pct = Math.max(0, 100 - (elapsed / duration * 100));
+          bar.style.width = pct + '%';
+          if (pct < 30) bar.classList.add('urgent');
+          if (pct <= 0) {
+            this.toast('Time\'s up. The room keeps you.', 'toast-wrong');
+            setTimeout(() => {
+              this.minigameDone = true;
+              this.currentRoundIndex++;
+              this.loadRound();
+            }, 1200);
+            return;
+          }
+          requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      },
+
+      showFinale() {
+        const correctCount = this.answered.filter(Boolean).length;
+        const total = this.answered.length;
+        const pct = Math.round((correctCount / total) * 100);
+
+        // Phase 1: joke beat
+        const badge = document.getElementById('finaleBadge');
+        const joke = document.getElementById('finaleJoke');
+        const jokeSub = document.getElementById('finaleJokeSub');
+        const sincereWrap = document.getElementById('finaleSincereWrap');
+        const sincere = document.getElementById('finaleSincere');
+        const photo = document.getElementById('finalePhoto');
+        const sig = document.getElementById('finaleSig');
+
+        // Reset
+        sincereWrap.classList.remove('show');
+        photo.classList.remove('reveal');
+        sig.classList.remove('show');
+
+        badge.textContent = 'the verdict';
+        joke.textContent = `You scored ${correctCount} / ${total}. That's ${pct}% calm.`;
+        jokeSub.textContent = 'Shelly could never.';
+
+        this.show('screen-finale');
+
+        // Phase 2: sincere reveal
         setTimeout(() => {
-          this.gameDone = true;
-          this.roundIdx++;
-          this.loadRound();
-        }, 1000);
-        return;
-      }
-      requestAnimationFrame(tick);
+          sincere.textContent = `But this was never really about being calm. It's about the fact that your chaos is exactly what makes you, you. And that's worth celebrating.`;
+          sincereWrap.classList.add('show');
+        }, 3500);
+
+        // Phase 3: photo
+        setTimeout(() => {
+          photo.classList.add('reveal');
+        }, 4200);
+
+        // Phase 4: signature
+        setTimeout(() => {
+          sig.classList.add('show');
+        }, 5000);
+      },
+
+      toast(msg, cls) {
+        const t = document.getElementById('toast');
+        t.textContent = msg;
+        t.className = cls || '';
+        t.classList.add('show');
+        clearTimeout(this._toastTimer);
+        this._toastTimer = setTimeout(() => {
+          t.classList.remove('show');
+        }, 2400);
+      },
     };
-    requestAnimationFrame(tick);
-  },
 
-  /* ─── FINALE ─── */
-  renderFinale() {
-    const correct = this.results.filter(Boolean).length;
-    const total = this.results.length;
-    const pct = Math.round((correct / total) * 100);
+    // Build the round screen container
+    (function buildRoundScreen() {
+      const container = document.getElementById('round-container');
+      container.innerHTML = `
+        <div class="screen" id="screen-round">
+          <div class="round-badge"></div>
+          <h2 class="title-med"></h2>
+          <div class="choices-wrap">
+            <button class="choice-btn" onclick="Game.handleChoice('correct')"></button>
+            <button class="choice-btn" onclick="Game.handleChoice('wrong')"></button>
+          </div>
+        </div>
+      `;
+    })();
 
-    // Reset
-    const sincereWrap = document.getElementById('sincereWrap');
-    const photo = document.getElementById('photoRing');
-    const sig = document.getElementById('sigLine');
-    sincereWrap.classList.remove('show');
-    photo.classList.remove('show');
-    sig.classList.remove('show');
-
-    document.getElementById('finaleTag').textContent = 'the verdict';
-    document.getElementById('finaleJoke').textContent = `You scored ${correct} / ${total}. That's ${pct}% calm.`;
-    document.getElementById('finaleJokeSub').textContent = 'Shelly could never.';
-
-    // Phase 1: joke (immediate)
-    this.show('finale');
-
-    // Phase 2: sincere (3s)
-    setTimeout(() => {
-      document.getElementById('sincereMsg').textContent =
-        'But this was never really about being calm. It\'s about the fact that your chaos is exactly what makes you, you. And that\'s worth celebrating.';
-      sincereWrap.classList.add('show');
-    }, 3000);
-
-    // Phase 3: photo (4s)
-    setTimeout(() => photo.classList.add('show'), 4000);
-
-    // Phase 4: signature (5s)
-    setTimeout(() => sig.classList.add('show'), 5000);
-  },
-
-  /* ─── TOAST ─── */
-  toast(msg, cls) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.className = cls || '';
-    requestAnimationFrame(() => t.classList.add('show'));
-    clearTimeout(this._tt);
-    this._tt = setTimeout(() => t.classList.remove('show'), 2400);
-  },
-};
-
-Q.init();
-</script>
+    Game.init();
+  </script>
 </body>
 </html>
