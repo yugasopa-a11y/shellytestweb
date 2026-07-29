@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>The Shelly Test — Birthday Edition</title>
+  <title>WHAT WOULD SHELLY DO</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
@@ -414,102 +414,85 @@
     </p>
   </div>
 
+  <!-- ROAST POPUP -->
+  <div class="roast-popup" id="roastPopup">
+    <img src="" alt="Shelly roast">
+    <div class="caption"></div>
+  </div>
+
   <script>
     const ROUNDS = [
       {
-        id: 1, theme: 'coffee',
-        q: 'You spill coffee on your laptop. What\'s your first move?',
-        correct: 'Stay calm. Save the files. Rice can wait.',
-        wrong: 'Scream, blame the mug, and take 14 photos for Instagram.',
-        correctLabel: 'Reasonable',
-        wrongLabel: 'The real Shelly',
-        toastWrong: 'THE MUG GETS BLAMED 😤',
+        id: 1,
+        title: 'Round 1 — The House',
+        q: 'Arham "accidentally" knocks over Shelly's drink — what does Shelly actually do?',
+        correct: 'Immediately escalates it into a whole thing',
+        wrong: 'Whatever, no big deal',
+        roastImage: 'images/roast1.jpg',
+        roastCaption: 'MAKE UP A STORY ABOUT IT, MAJOR DRAMA, YOU BEHAVE WILDLY ABOUT THE OVER-SPOUK, SPLASH!!',
       },
       {
-        id: 2, theme: 'uber',
-        q: 'Your Uber is 3 minutes away. What do you do?',
-        correct: 'Put on shoes. Walk to the door. Simple.',
-        wrong: 'Panic. Check the map 11 times. Text "omw" while still in pajamas.',
-        correctLabel: 'Reasonable',
-        wrongLabel: 'The real Shelly',
-        toastWrong: 'YOU TEXTED "I\'M HERE" FROM THE COUCH 😭',
+        id: 2,
+        title: 'Round 2 — Out and About',
+        q: 'Someone cuts Shelly off in line or in traffic — what does Shelly actually do?',
+        correct: 'Says something petty about it',
+        wrong: 'Lets it go',
+        roastImage: 'images/roast2.jpg',
+        roastCaption: 'HAVE SPITE WORDS ABOUT THE CUT, PETTY ISNT NICE AT ALL',
       },
       {
-        id: 3, theme: 'plans',
-        q: 'Friday night plans fall through. You...',
-        correct: 'Stay in. Read a book. Early night.',
-        wrong: 'Overanalyze. Text everyone. End up binge-watching at 2 AM.',
-        correctLabel: 'Reasonable',
-        wrongLabel: 'The real Shelly',
-        toastWrong: 'THE OVERANALYZING IS REAL 🫠',
+        id: 3,
+        title: 'Round 3 — Birthday Party',
+        q: 'Cake shows up with the wrong flavor — what does Shelly actually do?',
+        correct: 'Gets sassy about it',
+        wrong: 'Doesn't care, eats it anyway',
+        roastImage: 'images/roast3.jpg',
+        roastCaption: 'YES YOUrr HAVE TO CONFESS, YOUR EATING HABBITS BAD!',
       },
       {
-        id: 4, theme: 'car',
-        q: 'Someone is tailgating you aggressively.',
-        correct: 'Move over when safe. Let them pass. Breathe.',
-        wrong: 'Brake-check them, make eye contact in the mirror, mutter threats.',
-        correctLabel: 'Reasonable',
-        wrongLabel: 'The real Shelly',
-        toastWrong: 'THE BRAKE CHECK IS INSTINCTIVE 🚗',
-        seatbelt: true,
+        id: 4,
+        title: 'Round 4 — The Car',
+        q: 'Arham\'s in the passenger seat and Shelly\'s behind the wheel — what does Shelly actually do?',
+        correct: 'Aggressive tailgater who might crash the car',
+        wrong: 'Cautious and calm',
+        roastImage: 'images/roast4.jpg',
+        roastCaption: 'YOU PULL SOOOONNNG, DO YOU EVEN DRIVE???',
       },
       {
-        id: 5, theme: 'phone',
-        q: 'Your phone dies at 7%. What do you do?',
-        correct: 'Find a charger or turn on low power mode.',
-        wrong: 'Mental breakdown. Frantically text everyone "MY PHONE MIGHT DIE."',
-        correctLabel: 'Reasonable',
-        wrongLabel: 'The real Shelly',
-        toastWrong: 'THE PREEMPTIVE GOODBYE TEXT 😂',
+        id: 5,
+        title: 'Round 5 — Family Dinner',
+        q: 'At the table, what does Shelly actually do?',
+        correct: 'Sends food back / makes a scene about it',
+        wrong: 'Orders normally, no drama',
+        roastImage: 'images/roast5.jpg',
+        roastCaption: 'YES YOUR HAVE TO CONFESS, YOUR EATING HABBITS BAD!',
       },
       {
-        id: 6, theme: 'wifi',
-        q: 'WiFi goes down for 10 minutes. Your reaction?',
-        correct: 'Wait. Maybe read a book. No big deal.',
-        wrong: 'Check router, restart phone, reboot laptop, question all life choices.',
-        correctLabel: 'Reasonable',
-        wrongLabel: 'The real Shelly',
-        toastWrong: 'THE FULL IT DEPARTMENT ACTIVATED 💀',
+        id: 6,
+        title: 'Round 6 — The Interrogation Room',
+        q: 'Arham locks Shelly out of her room — what does Shelly actually do?',
+        correct: 'Full meltdown, threatens to tell everyone',
+        wrong: 'Calmly sits outside for 48 hours, no complaints',
+        roastImage: 'images/roast6.jpg',
+        roastCaption: 'YOUR BREAKING, BUT YOUR SILENCES FEEL INEXACT!',
       },
       {
-        id: 7, theme: 'restaurant',
-        q: 'Your food order comes wrong. What do you do?',
-        correct: 'Politely tell the server. Get it fixed. Move on.',
-        wrong: 'Say it\'s fine. Eat it. Compose 3 texts about it later.',
-        correctLabel: 'Reasonable',
-        wrongLabel: 'The real Shelly',
-        toastWrong: 'THE PASSIVE-AGGRESSIVE "IT\'S FINE" 😬',
+        id: 7,
+        title: 'Round 7 — Road Trip',
+        q: 'The aux cord is finally free — what does Shelly actually do?',
+        correct: 'Hijacks it and refuses to give it back for the entire trip',
+        wrong: 'Lets everyone pick a song, no fuss',
+        roastImage: 'images/roast7.jpg',
+        roastCaption: 'YOU TAP THAT AUX CORD, AND YOU OWN ALL THE SONGS!',
       },
     ];
 
-    const ROUND_ORDER = [4, 1, 2, 3, 5, 6, 7];
-
-    const SEATBELT_OBJECTS = [
-      '📱 Phone charger',
-      '🎒 Old backpack',
-      '🧃 Juice box',
-      '📖 Dog-eared book',
-      '🎧 One earbud',
-      '🧴 Half-empty lotion',
-      '🕶️ Sunglasses',
-    ];
-
-    const CLUE_ITEMS = ['🔍', '🗝️', '📜', '💡', '🔐'];
-    const FILLER_ITEMS = ['📎', '☕', '🗂️', '🧷', '📌', '✏️'];
-
-    const MINIGAME_TOASTS = [
-      'Wait… was that the exit key?',
-      'Not the answer, but nice try.',
-      'Clue energy detected.',
-      'Keep looking. The door won\'t open itself.',
-    ];
+    const ROUND_ORDER = [1, 2, 3, 4, 5, 6, 7];
 
     const Game = {
       score: 0,
       currentRoundIndex: 0,
       answered: [],
-      seatbeltShown: false,
-      minigameDone: false,
 
       init() {
         this.buildProgressDots();
@@ -519,7 +502,7 @@
 
       buildProgressDots() {
         const container = document.getElementById('progressDots');
-        const total = 7 + 1; // 7 rounds + minigame
+        const total = 7;
         container.innerHTML = '';
         for (let i = 0; i < total; i++) {
           const dot = document.createElement('div');
@@ -557,9 +540,7 @@
         this.score = 0;
         this.currentRoundIndex = 0;
         this.answered = [];
-        this.seatbeltShown = false;
-        this.minigameDone = false;
-        this.show('progressDots').style.display = 'flex';
+        this.show('progressDots');
         this.loadRound();
       },
 
@@ -568,8 +549,6 @@
           const roundId = ROUND_ORDER[this.currentRoundIndex];
           const round = ROUNDS.find(r => r.id === roundId);
           this.showRound(round);
-        } else if (!this.minigameDone) {
-          this.showMinigame();
         } else {
           this.showFinale();
         }
@@ -578,15 +557,15 @@
 
       showRound(round) {
         const screen = document.getElementById('screen-round');
-        screen.querySelector('.round-badge').textContent = `round ${round.id} — ${round.theme}`;
+        screen.querySelector('.round-badge').textContent = round.title;
         screen.querySelector('h2').textContent = round.q;
         const choices = screen.querySelectorAll('.choice-btn');
-        choices[0].innerHTML = `${round.correct}<span class="label correct-label">${round.correctLabel}</span>`;
-        choices[1].innerHTML = `${round.wrong}<span class="label wrong-label">${round.wrongLabel}</span>`;
+        choices[0].innerHTML = `${round.correct}<span class="label correct-label">CORRECT</span>`;
+        choices[1].innerHTML = `${round.wrong}<span class="label wrong-label">WRONG</span>`;
         choices.forEach(b => b.className = 'choice-btn');
         screen.dataset.roundId = round.id;
-        screen.dataset.wrongToast = round.toastWrong;
-        screen.dataset.seatbelt = round.seatbelt || '';
+        screen.dataset.roastImage = round.roastImage || '';
+        screen.dataset.roastCaption = round.roastCaption || '';
         this.show('screen-round');
       },
 
@@ -606,21 +585,19 @@
           if (b !== chosenBtn) b.classList.add('disabled');
         });
 
-        // Toast
+        // Feedback
         if (isCorrect) {
           this.toast('Well played. The calm is strong.', 'toast-correct');
         } else {
-          this.toast(round.toastWrong, 'toast-wrong');
-          // Seatbelt animation for round 4
-          if (round.seatbelt && !this.seatbeltShown) {
-            this.seatbeltShown = true;
-            setTimeout(() => {
-              document.getElementById('screen-round').classList.add('shake');
-              setTimeout(() => {
-                document.getElementById('screen-round').classList.remove('shake');
-              }, 500);
-            }, 200);
-          }
+          // Screen shake
+          document.getElementById('screen-round').classList.add('shake');
+          setTimeout(() => {
+            document.getElementById('screen-round').classList.remove('shake');
+          }, 500);
+          // Roast popup
+          setTimeout(() => {
+            this.showRoast(round);
+          }, 300);
         }
 
         this.answered.push(isCorrect);
@@ -632,91 +609,17 @@
         }, 1600);
       },
 
-      showMinigame() {
-        this.show('screen-minigame');
-        this.minigameStart = Date.now();
-        this.minigameFound = 0;
-        this.minigameTotal = CLUE_ITEMS.length;
-        document.getElementById('minigameStatus').textContent = `Clues found: 0 / ${this.minigameTotal}`;
-        this.buildGameGrid();
-        this.startMinigameTimer();
-      },
-
-      buildGameGrid() {
-        const grid = document.getElementById('gameGrid');
-        grid.innerHTML = '';
-        const totalCells = 9;
-        const cluePositions = [];
-        while (cluePositions.length < this.minigameTotal) {
-          const pos = Math.floor(Math.random() * totalCells);
-          if (!cluePositions.includes(pos)) cluePositions.push(pos);
-        }
-
-        for (let i = 0; i < totalCells; i++) {
-          const cell = document.createElement('div');
-          cell.className = 'game-cell';
-          if (cluePositions.includes(i)) {
-            cell.dataset.clue = 'true';
-            cell.dataset.clueItem = CLUE_ITEMS[cluePositions.indexOf(i)];
-          } else {
-            cell.textContent = FILLER_ITEMS[i % FILLER_ITEMS.length];
-          }
-          cell.addEventListener('click', () => this.handleCellClick(cell));
-          grid.appendChild(cell);
-        }
-      },
-
-      handleCellClick(cell) {
-        if (cell.classList.contains('found') || cell.classList.contains('reveal-item')) return;
-
-        if (cell.dataset.clue) {
-          cell.classList.add('found');
-          cell.textContent = cell.dataset.clueItem;
-          this.minigameFound++;
-          document.getElementById('minigameStatus').textContent = `Clues found: ${this.minigameFound} / ${this.minigameTotal}`;
-
-          if (this.minigameFound >= this.minigameTotal) {
-            this.toast('Room escaped. That was close.', 'toast-correct');
-            setTimeout(() => {
-              this.minigameDone = true;
-              this.currentRoundIndex++;
-              this.loadRound();
-            }, 1200);
-          }
-        } else {
-          this.toast(MINIGAME_TOASTS[Math.floor(Math.random() * MINIGAME_TOASTS.length)], '');
-          cell.classList.add('reveal-item');
-          setTimeout(() => {
-            cell.classList.remove('reveal-item');
-          }, 600);
-        }
-      },
-
-      startMinigameTimer() {
-        const bar = document.getElementById('minigameTimerBar');
-        bar.style.width = '100%';
-        bar.classList.remove('urgent');
-        const duration = 30000;
-        const start = Date.now();
-
-        const tick = () => {
-          if (this.minigameDone) return;
-          const elapsed = Date.now() - start;
-          const pct = Math.max(0, 100 - (elapsed / duration * 100));
-          bar.style.width = pct + '%';
-          if (pct < 30) bar.classList.add('urgent');
-          if (pct <= 0) {
-            this.toast('Time\'s up. The room keeps you.', 'toast-wrong');
-            setTimeout(() => {
-              this.minigameDone = true;
-              this.currentRoundIndex++;
-              this.loadRound();
-            }, 1200);
-            return;
-          }
-          requestAnimationFrame(tick);
-        };
-        requestAnimationFrame(tick);
+      showRoast(round) {
+        const popup = document.getElementById('roastPopup');
+        const img = popup.querySelector('img');
+        const caption = popup.querySelector('.caption');
+        img.src = round.roastImage;
+        img.alt = 'Shelly roast';
+        caption.textContent = 'Is that really what you would\'ve done???';
+        popup.classList.add('show');
+        setTimeout(() => {
+          popup.classList.remove('show');
+        }, 2000);
       },
 
       showFinale() {
